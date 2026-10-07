@@ -9,5 +9,16 @@ export default defineConfig({
     environment: 'node',
     include: ['test/**/*.test.ts'],
     testTimeout: 20_000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      include: ['src/sdk/**/*.ts'],
+      thresholds: {
+        lines: 60,
+        functions: 55,
+        branches: 60,
+        statements: 60,
+      },
+    },
   },
 });

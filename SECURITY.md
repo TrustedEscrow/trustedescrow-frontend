@@ -25,3 +25,4 @@ When reporting a vulnerability, please include:
 1. **Client-Side Key Management:** Private keys and secret seeds are never stored, transmitted, or accessible by the web app. All transaction signing is delegated to user-controlled wallet extensions (e.g. Freighter).
 2. **WASM & Factory Pinning:** The app verifies factory provenance and checks WASM code hashes before requesting escrow funding to prevent interaction with unaudited or malicious contracts.
 3. **Canonical Data Verification:** Release codes and proof hashes are generated and validated client-side following canonical format standards before transaction submission.
+
