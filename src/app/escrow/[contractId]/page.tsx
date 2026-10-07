@@ -15,7 +15,7 @@ import { termsMismatches } from '@/sdk/terms';
 import { payoutOnRelease, TERMINAL_STATES } from '@/sdk/types';
 import { useAuth } from '@/lib/auth';
 import { config, explorerContractUrl } from '@/lib/config';
-import { useAgreedTerms, useEscrow, useEscrowDraftId, useEscrowWasm } from '@/lib/queries';
+import { useAgreedTerms, useEscrow, useEscrowDraftId, useEscrowProvenance, useEscrowVersion, useEscrowWasm } from '@/lib/queries';
 import { formatDate } from '@/lib/time';
 
 /**
@@ -35,6 +35,9 @@ function EscrowView({ id }: { id: string }) {
   if (escrow.error) return <ErrorText error={escrow.error} />;
   const e = escrow.data;
   if (!e) return null;
+
+  const version = useEscrowVersion(id);
+  const provenance = useEscrowProvenance(id, e.buyer, e.salt);
 
   const viewer = viewerOf(e, walletAddress);
   const sessionViewer = viewerOf(e, me?.address);
@@ -62,6 +65,23 @@ function EscrowView({ id }: { id: string }) {
         >
           {terms.data?.terms.item.title ?? 'Escrow'}
         </PageTitle>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {version.data && (
+            <span className="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+              v{version.data}
+            </span>
+          )}
+          {provenance.data === true && (
+            <span className="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+              ✓ Factory Provenance Verified
+            </span>
+          )}
+          {provenance.data === false && (
+            <span className="inline-flex items-center rounded border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+              ✗ Unverified Provenance
+            </span>
+          )}
+        </div>
       </div>
 
       {pinned === false && (
