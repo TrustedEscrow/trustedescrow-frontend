@@ -376,8 +376,46 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
         </Secondary>
       )}
 
+      {ctx.e.state === 'Funded' && <ExtendDeadline ctx={ctx} kind="delivery" />}
+      {ctx.e.state === 'Delivered' && <ExtendDeadline ctx={ctx} kind="receipt" />}
+
       <FeeBreakdown e={ctx.e} />
     </div>
+  );
+}
+
+function ExtendDeadline({ ctx, kind }: { ctx: Ctx; kind: 'delivery' | 'receipt' }) {
+  const run = useRunCall(ctx);
+  const [days, setDays] = useState(1);
+  const seconds = days * 86400;
+
+  const call = kind === 'delivery' ? escrowCalls.extendDelivery(seconds) : escrowCalls.extendReceipt(seconds);
+  const title = kind === 'delivery' ? 'Extend delivery deadline' : 'Extend receipt deadline';
+  const label = kind === 'delivery' ? 'Extend delivery' : 'Extend receipt';
+
+  return (
+    <Secondary title={`Extend ${kind} deadline`}>
+      <div className="space-y-3">
+        <p className="text-sm text-slate-600">
+          Add additional time to the {kind} window if more time is needed before timeouts trigger.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Field label="Extension time">
+            <Select value={days} onChange={(ev) => setDays(Number(ev.target.value))}>
+              <option value={1}>1 Day (24 hrs)</option>
+              <option value={3}>3 Days (72 hrs)</option>
+              <option value={7}>7 Days (1 week)</option>
+              <option value={14}>14 Days (2 weeks)</option>
+            </Select>
+          </Field>
+          <div className="pt-5">
+            <Button variant="secondary" onClick={() => void run(title, call)}>
+              {label} by {days} {days === 1 ? 'day' : 'days'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Secondary>
   );
 }
 
