@@ -1,7 +1,7 @@
 import { Address, Keypair, StrKey, scValToNative, xdr } from '@stellar/stellar-sdk';
 import { describe, expect, it } from 'vitest';
 import { formatAmount, fromBaseUnits, toBaseUnits } from '@/sdk/amount';
-import { EscrowChain, escrowCalls, factoryCalls, orderToScVal, scStruct, scUnitEnum } from '@/sdk/chain';
+import { EscrowChain, escrowCalls, orderToScVal, scStruct, scUnitEnum } from '@/sdk/chain';
 import { fromHex } from '@/sdk/code';
 import { decodeEscrow } from '@/sdk/decode';
 import { contractErrorCode, explainSimulationError } from '@/sdk/errors';
