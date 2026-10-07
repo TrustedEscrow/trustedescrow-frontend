@@ -39,7 +39,7 @@ export class ContractCallError extends Error {
 export class ChainError extends Error {
   constructor(
     message: string,
-    readonly kind: 'not_found' | 'rpc' | 'simulation' | 'submission' | 'timeout' | 'rejected' | 'pin',
+    readonly kind: 'not_found' | 'rpc' | 'simulation' | 'submission' | 'timeout' | 'rejected' | 'pin' | 'provenance',
   ) {
     super(message);
   }

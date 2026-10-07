@@ -223,6 +223,17 @@ export class EscrowChain {
     return cfg;
   }
 
+  /** Refuses any escrow whose contract ID was not derived from the factory contract for (buyer, salt). */
+  async assertFactoryProvenance(contractId: string, buyer: string, salt: Uint8Array): Promise<void> {
+    const expected = await this.escrowAddress(buyer, salt);
+    if (contractId !== expected) {
+      throw new ChainError(
+        `Escrow address ${contractId} does not match factory provenance for buyer ${buyer}`,
+        'provenance',
+      );
+    }
+  }
+
   // --- settlement rail readiness (UsdcRail.ensureReady, ARCHITECTURE §5) -------------
 
   /** The classic asset behind a Stellar Asset Contract, from its `name()` ("CODE:ISSUER"). */
