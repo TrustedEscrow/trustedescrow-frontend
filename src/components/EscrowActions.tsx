@@ -375,6 +375,42 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
           <Simple ctx={ctx} label="Cancel escrow" title="Cancel escrow" call={escrowCalls.cancel(walletAddress ?? '')} variant="danger" confirmText="Cancel this escrow?" />
         </Secondary>
       )}
+
+      <FeeBreakdown e={ctx.e} />
     </div>
+  );
+}
+
+function FeeBreakdown({ e }: { e: EscrowSnapshot }) {
+  const t = tokenDisplay(e.token);
+  const feePercent = (e.feeBps / 100).toFixed(2);
+  const hasUnswept = e.unsweptFee > 0n;
+
+  return (
+    <Secondary title="Protocol Fee & Recipient Details">
+      <div className="space-y-2 text-sm text-slate-600">
+        <div className="flex justify-between">
+          <span>Fee Rate:</span>
+          <span className="font-medium text-slate-900">{e.feeBps} BPS ({feePercent}%)</span>
+        </div>
+        <div className="flex justify-between gap-2">
+          <span>Fee Recipient:</span>
+          <span className="font-mono text-xs text-slate-900 truncate max-w-[200px]" title={e.feeRecipient}>
+            {e.feeRecipient}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span>Unswept Fee:</span>
+          <span className="font-medium text-slate-900">
+            {formatAmount(e.unsweptFee, t.decimals, t.symbol)}
+          </span>
+        </div>
+        {hasUnswept && (
+          <Alert tone="info">
+            There is an unswept fee balance of {formatAmount(e.unsweptFee, t.decimals, t.symbol)} pending collection.
+          </Alert>
+        )}
+      </div>
+    </Secondary>
   );
 }
