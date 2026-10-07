@@ -225,7 +225,7 @@ function CaseFile({ id }: { id: string }) {
           {cf?.draft && (
             <>
               <Card title="Statements and evidence">
-                <EvidencePanel draftId={cf.draft.id} releaseCodeHash={e.releaseCodeHash} canUpload canStatement={false} />
+                <EvidencePanel draftId={cf.draft.id} releaseCodeHash={e.releaseCodeHash} canUpload canStatement={false} statementHash={e.dispute?.statementHash} rulingHash={e.dispute?.rulingHash} />
               </Card>
               <Card title="Messages">
                 <Chat draftId={cf.draft.id} releaseCodeHash={e.releaseCodeHash} readOnly={e.state !== 'Disputed'} />

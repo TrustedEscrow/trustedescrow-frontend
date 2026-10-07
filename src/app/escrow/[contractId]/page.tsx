@@ -121,7 +121,7 @@ function EscrowView({ id }: { id: string }) {
 
           {draftId && signedIn && (e.dispute || e.state === 'Disputed') && (
             <Card title="Dispute case">
-              <EvidencePanel draftId={draftId} releaseCodeHash={e.releaseCodeHash} canUpload={isParty} canStatement={isParty && e.state === 'Disputed'} />
+              <EvidencePanel draftId={draftId} releaseCodeHash={e.releaseCodeHash} canUpload={isParty} canStatement={isParty && e.state === 'Disputed'} statementHash={e.dispute?.statementHash} rulingHash={e.dispute?.rulingHash} />
             </Card>
           )}
 

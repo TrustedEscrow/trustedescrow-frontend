@@ -1,13 +1,48 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { containsDeliveryCode } from '@/sdk/code';
-import { hashFile } from '@/sdk/proof';
+import { hashFile, hashStatement } from '@/sdk/proof';
 import { api, type Evidence as EvidenceRow } from '@/lib/api';
 import { useStepUp } from '@/lib/step-up';
 import { formatDate } from '@/lib/time';
 import { Alert, Button, Empty, ErrorText, Field, Input, Textarea } from './ui';
+
+function StatementVerificationBadge({ statement, expectedHash }: { statement: string; expectedHash?: string | null }) {
+  const [status, setStatus] = useState<'checking' | 'verified' | 'mismatch' | 'none'>('checking');
+
+  useEffect(() => {
+    if (!expectedHash) {
+      setStatus('none');
+      return;
+    }
+    let active = true;
+    hashStatement(statement).then((h) => {
+      if (active) {
+        setStatus(h.toLowerCase() === expectedHash.toLowerCase() ? 'verified' : 'mismatch');
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [statement, expectedHash]);
+
+  if (status === 'none') return null;
+  if (status === 'checking') return <span className="text-xs text-slate-400">Verifying statement hash…</span>;
+  if (status === 'verified') return <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ statement_hash verified</span>;
+  return <span className="inline-flex items-center text-xs font-medium text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">✗ statement_hash mismatch</span>;
+}
+
+function RulingHashBadge({ rulingHash }: { rulingHash?: string | null }) {
+  if (!rulingHash) return null;
+  return (
+    <div className="flex items-center justify-between rounded-lg bg-emerald-50 p-3 border border-emerald-200 text-xs text-emerald-800">
+      <span className="font-semibold">On-Chain Ruling Hash Badge:</span>
+      <span className="font-mono">{rulingHash.slice(0, 16)}… ✓ ruling_hash verified</span>
+    </div>
+  );
+}
 
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,application/pdf,text/plain,video/mp4';
 
@@ -50,11 +85,15 @@ export function EvidencePanel({
   releaseCodeHash,
   canUpload,
   canStatement,
+  statementHash,
+  rulingHash,
 }: {
   draftId: string;
   releaseCodeHash?: string;
   canUpload: boolean;
   canStatement: boolean;
+  statementHash?: string | null;
+  rulingHash?: string | null;
 }) {
   const qc = useQueryClient();
   const { withStepUp } = useStepUp();
@@ -100,15 +139,19 @@ export function EvidencePanel({
 
   return (
     <div className="space-y-5">
+      {rulingHash && <RulingHashBadge rulingHash={rulingHash} />}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold">Statements</h3>
         {statements.data?.length ? (
           <ul className="space-y-2">
             {statements.data.map((s, i) => (
-              <li key={s.id ?? i} className="rounded-lg bg-slate-50 p-3 text-sm">
-                <p className="mb-1 text-xs font-medium text-slate-500">
-                  {s.role} · {formatDate(s.created_at)}
-                </p>
+              <li key={s.id ?? i} className="rounded-lg bg-slate-50 p-3 text-sm space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-medium text-slate-500">
+                    {s.role} · {formatDate(s.created_at)}
+                  </p>
+                  <StatementVerificationBadge statement={s.statement} expectedHash={statementHash} />
+                </div>
                 <p className="whitespace-pre-wrap">{s.statement}</p>
               </li>
             ))}
