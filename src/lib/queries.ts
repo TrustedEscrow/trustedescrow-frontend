@@ -26,6 +26,29 @@ export function useEscrowWasm(contractId: string | null | undefined) {
   });
 }
 
+export function useEscrowVersion(contractId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['version', contractId],
+    queryFn: () => chain.version(contractId!),
+    enabled: !!contractId,
+    staleTime: Infinity,
+  });
+}
+
+export function useEscrowProvenance(contractId: string | null | undefined, buyer?: string, saltHex?: string) {
+  return useQuery({
+    queryKey: ['provenance', contractId, buyer, saltHex],
+    queryFn: async () => {
+      if (!buyer || !saltHex) return true;
+      const { fromHex } = await import('@/sdk/code');
+      const expected = await chain.escrowAddress(buyer, fromHex(saltHex));
+      return contractId === expected;
+    },
+    enabled: !!contractId && !!buyer && !!saltHex,
+    staleTime: Infinity,
+  });
+}
+
 export function useSignedIn() {
   const { status } = useAuth();
   return status === 'signed_in';
