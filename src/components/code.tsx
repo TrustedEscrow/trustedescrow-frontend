@@ -25,6 +25,7 @@ export function CodeWarning() {
 export function DeliveryCodeDisplay({ code, onHide }: { code: string; onHide?: () => void }) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [qr, setQr] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!acknowledged) return;
@@ -34,6 +35,16 @@ export function DeliveryCodeDisplay({ code, onHide }: { code: string; onHide?: (
       cancelled = true;
     };
   }, [acknowledged, code]);
+
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(display(code));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -48,6 +59,9 @@ export function DeliveryCodeDisplay({ code, onHide }: { code: string; onHide?: (
           <p className="font-code select-all text-center text-2xl font-bold sm:text-3xl" aria-label={`Delivery code ${[...code].join(' ')}`}>
             {display(code)}
           </p>
+          <Button variant="ghost" onClick={() => void copyCode()} className="text-xs">
+            {copied ? '✓ Copied to clipboard' : 'Copy delivery code'}
+          </Button>
           {/* eslint-disable-next-line @next/next/no-img-element -- data URL generated on device */}
           {qr && <img src={qr} alt="QR code of the delivery code" width={240} height={240} className="rounded" />}
           <p className="text-xs text-slate-500">The seller scans or types this. Letters I, L and O are read as 1, 1 and 0.</p>
