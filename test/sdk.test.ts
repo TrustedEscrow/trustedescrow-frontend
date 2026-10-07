@@ -1,7 +1,7 @@
 import { Address, Keypair, StrKey, scValToNative, xdr } from '@stellar/stellar-sdk';
 import { describe, expect, it } from 'vitest';
 import { formatAmount, fromBaseUnits, toBaseUnits } from '@/sdk/amount';
-import { escrowCalls, factoryCalls, orderToScVal, scStruct, scUnitEnum } from '@/sdk/chain';
+import { EscrowChain, escrowCalls, factoryCalls, orderToScVal, scStruct, scUnitEnum } from '@/sdk/chain';
 import { fromHex } from '@/sdk/code';
 import { decodeEscrow } from '@/sdk/decode';
 import { contractErrorCode, explainSimulationError } from '@/sdk/errors';
@@ -229,5 +229,19 @@ describe('errors', () => {
 
   it('keeps addresses stable', () => {
     expect(Address.fromString(escrowId).toString()).toBe(escrowId);
+  });
+
+  it('validates assertFactoryProvenance checks expected escrow address', async () => {
+    const chain = new EscrowChain({
+      rpcUrl: 'http://localhost:8000',
+      networkPassphrase: 'Test Network',
+      factoryId: token,
+      escrowWasmHash: '00'.repeat(32),
+    });
+    const salt = new Uint8Array(32);
+    // Mock escrowAddress method
+    chain.escrowAddress = async () => escrowId;
+    await expect(chain.assertFactoryProvenance(escrowId, buyer, salt)).resolves.toBeUndefined();
+    await expect(chain.assertFactoryProvenance('C123', buyer, salt)).rejects.toThrow(/does not match factory provenance/);
   });
 });
