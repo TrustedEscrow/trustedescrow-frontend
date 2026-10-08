@@ -29,11 +29,23 @@
   color-scheme: light;
 }
 
+html.dark {
+  color-scheme: dark;
+  --color-paper: #09130f;
+  --color-ink: #f0fdf4;
+  --color-line: #1c3329;
+}
+
 body {
   background: var(--color-paper);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+html.dark body {
+  background: #09130f;
+  color: #f0fdf4;
 }
 
 /* Codes and hashes must never be ambiguous on screen. */

@@ -7,6 +7,7 @@ import { isArbitrator, useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
 import { useNotifications } from '@/lib/queries';
 import { Wordmark } from './Logo';
+import { ThemeSwitcher } from './ThemeSwitcher';
 import { Badge, Button, cx, shortAddress } from './ui';
 
 export function Header() {
@@ -81,6 +82,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeSwitcher />
           {signedIn && me && (
             <div className="hidden text-right text-xs sm:block">
               <p className="font-mono text-slate-700">{me.displayName ?? shortAddress(me.address)}</p>
