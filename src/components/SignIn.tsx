@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { type ReactNode, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { Alert, Button, Card, ErrorText, Field, Input, Spinner } from './ui';
@@ -29,6 +30,11 @@ export function SignInPanel() {
         >
           Connect Freighter and sign in
         </Button>
+        <div className="pt-1 text-center">
+          <Link href="/escrow" className="text-xs text-slate-500 hover:text-brand-700 underline">
+            Or open an on-chain escrow without signing in →
+          </Link>
+        </div>
       </div>
     </Card>
   );

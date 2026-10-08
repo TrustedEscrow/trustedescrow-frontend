@@ -51,11 +51,14 @@ export function Header() {
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/orders', label: 'Orders' },
         { href: '/orders/new', label: 'New order' },
+        { href: '/escrow', label: 'Open by address' },
         { href: '/notifications', label: unread ? `Alerts (${unread})` : 'Alerts' },
         { href: '/settings', label: 'Settings' },
         ...(isArbitrator(me) ? [{ href: '/arbitrator', label: 'Arbitration' }] : []),
       ]
-    : [];
+    : [
+        { href: '/escrow', label: 'Open by address' },
+      ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
