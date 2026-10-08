@@ -49,6 +49,21 @@ export function useEscrowProvenance(contractId: string | null | undefined, buyer
   });
 }
 
+/**
+ * Whether an account can be paid this token. Release reverts while the seller
+ * cannot, and refund while the buyer cannot, so the panels ask for this before
+ * they offer a button. Kept briefly stale so adding a trustline shows up on the
+ * next look rather than needing a reload.
+ */
+export function useCanReceive(token: string | null | undefined, address: string | null | undefined) {
+  return useQuery({
+    queryKey: ['can-receive', token, address],
+    queryFn: () => chain.canReceive(token!, address!),
+    enabled: !!token && !!address,
+    staleTime: 30_000,
+  });
+}
+
 export function useSignedIn() {
   const { status } = useAuth();
   return status === 'signed_in';

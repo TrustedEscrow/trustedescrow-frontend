@@ -9,10 +9,12 @@ import { Chat } from '@/components/Chat';
 import { CodeInput } from '@/components/code';
 import { Amount, Countdown, StateBadge, TermsSummary, Timeline } from '@/components/escrow-bits';
 import { EvidencePanel } from '@/components/Evidence';
+import { usePayoutGate } from '@/components/payout-gate';
 import { RequireAuth } from '@/components/SignIn';
 import { Addr, Alert, Button, Card, ErrorText, Field, Hash, Input, Modal, PageTitle, Row, Spinner } from '@/components/ui';
 import { termsHashHex } from '@/sdk/canonical-json';
 import { escrowCalls } from '@/sdk/chain';
+import { payeeOf } from '@/sdk/payable';
 import { hashFile, PROOF_KIND_HELP } from '@/sdk/proof';
 import { payoutOnRelease, type EscrowSnapshot, type Outcome } from '@/sdk/types';
 import { api } from '@/lib/api';
@@ -78,6 +80,11 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
   const [showConfirm, setShowConfirm] = useState(false);
   const deadline = e.dispute?.deadline ?? 0;
   const { payout } = payoutOnRelease(e.amount, e.feeBps);
+  // Both outcomes pay with a plain `transfer`, so a ruling reverts if the side
+  // it pays cannot hold the token. Must sit above the early returns below:
+  // hooks cannot be called conditionally. Before a choice is made it checks the
+  // seller, who is the side that usually lacks a trustline.
+  const payee = usePayoutGate(e.token, payeeOf(e, choice ?? 'Release'), choice === 'Refund' ? 'buyer' : 'seller');
 
   if (e.state !== 'Disputed') return <p className="text-sm text-slate-600">This escrow is no longer in dispute.</p>;
   if (now >= deadline) return <Alert tone="warning">The arbitration deadline has passed. You can no longer rule; anyone can refund the buyer.</Alert>;
@@ -126,7 +133,8 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
             <input type="checkbox" className="mt-1" checked={ack} onChange={(ev) => setAck(ev.target.checked)} />
             <span>I have reviewed the proof, the terms, the messages and the evidence.</span>
           </label>
-          <Button disabled={!ack} onClick={() => setShowConfirm(true)}>
+          {payee.gate}
+          <Button disabled={!ack || payee.blocked} onClick={() => setShowConfirm(true)}>
             Sign ruling
           </Button>
 

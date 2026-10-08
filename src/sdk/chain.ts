@@ -272,13 +272,24 @@ export class EscrowChain {
     }
   }
 
-  async readiness(token: string, address: string, amount: bigint) {
-    const accountExists = await this.accountExists(address);
-    if (!accountExists) return { accountExists, asset: null, hasTrustline: false, balance: 0n, enough: false };
+  /**
+   * Whether `address` could receive this token if something paid it right now.
+   * Every release path reverts until this holds for the seller, and a refund
+   * until it holds for the buyer, so it gates those calls before a signature is
+   * asked for — see `payoutBlock` in sdk/payable.ts. A token with no classic
+   * asset behind it counts as receivable: there is no trustline to look up.
+   */
+  async canReceive(token: string, address: string): Promise<{ accountExists: boolean; asset: Asset | null; hasTrustline: boolean }> {
+    if (!(await this.accountExists(address))) return { accountExists: false, asset: null, hasTrustline: false };
     const asset = await this.classicAsset(token);
-    const hasTrustline = asset ? await this.hasTrustline(address, asset) : true;
-    const balance = hasTrustline ? await this.tokenBalance(token, address) : 0n;
-    return { accountExists, asset, hasTrustline, balance, enough: balance >= amount };
+    return { accountExists: true, asset, hasTrustline: asset ? await this.hasTrustline(address, asset) : true };
+  }
+
+  /** `canReceive` plus the balance, for the one side that has to pay in. */
+  async readiness(token: string, address: string, amount: bigint) {
+    const base = await this.canReceive(token, address);
+    const balance = base.hasTrustline ? await this.tokenBalance(token, address) : 0n;
+    return { ...base, balance, enough: balance >= amount };
   }
 
   /** A `changeTrust` for the rail's asset. Paid by the user in v1; sponsorship is roadmap. */

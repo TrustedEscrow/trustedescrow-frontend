@@ -15,6 +15,7 @@ import { useEscrowWasm } from '@/lib/queries';
 import { formatDate, useNow } from '@/lib/time';
 import { chain, useTx } from '@/lib/tx';
 import { CodeInput } from './code';
+import { usePayoutGate } from './payout-gate';
 import { Amount } from './escrow-bits';
 import { Alert, Button, ErrorText, Field, Input, Select, Textarea } from './ui';
 import { RevealCode } from './Vault';
@@ -151,11 +152,14 @@ function ProofForm({ ctx, withCode, warning }: { ctx: Ctx; withCode: boolean; wa
   const [ack, setAck] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const onCode = useCallback((c: string | null) => setCode(c), []);
+  // With the code this call pays out, so a missing trustline blocks it. Plain
+  // proof succeeds either way; warn, because the buyer's release is next.
+  const seller = usePayoutGate(e.token, e.seller, 'seller', withCode ? 'now' : 'later');
 
   const uriErr = uri || kind !== 'Attestation' ? uriProblem(kind, uri.trim()) : null;
   const needsFile = kind === 'Content';
   const hasEvidence = kind === 'Content' ? !!file : kind === 'Attestation' ? statement.trim().length > 0 : !!file || statement.trim().length > 0;
-  const canSubmit = !uriErr && hasEvidence && ack && (!withCode || !!code);
+  const canSubmit = !uriErr && hasEvidence && ack && (!withCode || !!code) && !seller.blocked;
 
   const submit = async () => {
     setError(null);
@@ -182,6 +186,7 @@ function ProofForm({ ctx, withCode, warning }: { ctx: Ctx; withCode: boolean; wa
   return (
     <div className="space-y-3">
       {warning && <Alert tone="danger">{warning}</Alert>}
+      {seller.gate}
       {allowed.length > 1 && (
         <Field label="Kind of proof">
           <Select value={kind} onChange={(ev) => setKind(ev.target.value as ProofKind)}>
@@ -234,11 +239,13 @@ function ReleaseWithCode(ctx: Ctx) {
   const run = useRunCall(ctx);
   const [code, setCode] = useState<string | null>(null);
   const onCode = useCallback((c: string | null) => setCode(c), []);
+  const seller = usePayoutGate(ctx.e.token, ctx.e.seller, 'seller');
   return (
     <Section title="Release with the buyer's code">
       <p className="text-sm text-slate-600">When the buyer has the item and has checked it, they give you their 16-character code. Enter it to release the payment.</p>
       <CodeInput expectedHash={ctx.e.releaseCodeHash} onValid={onCode} />
-      <Button disabled={!code} onClick={() => void run('Release payment', escrowCalls.releaseWithCode(code!))}>
+      {seller.gate}
+      <Button disabled={!code || seller.blocked} onClick={() => void run('Release payment', escrowCalls.releaseWithCode(code!))}>
         Release payment
       </Button>
     </Section>
@@ -249,6 +256,7 @@ function ConfirmReceipt(ctx: Ctx) {
   const run = useRunCall(ctx);
   const [ack, setAck] = useState(false);
   const { payout } = payoutOnRelease(ctx.e.amount, ctx.e.feeBps);
+  const seller = usePayoutGate(ctx.e.token, ctx.e.seller, 'seller');
   return (
     <div className="space-y-3">
       <p className="text-sm text-slate-600">
@@ -258,7 +266,8 @@ function ConfirmReceipt(ctx: Ctx) {
         <input type="checkbox" className="mt-1" checked={ack} onChange={(ev) => setAck(ev.target.checked)} />
         <span>I have the item and it matches the agreed terms.</span>
       </label>
-      <Button disabled={!ack} onClick={() => void run('Confirm receipt', escrowCalls.confirm())}>
+      {seller.gate}
+      <Button disabled={!ack || seller.blocked} onClick={() => void run('Confirm receipt', escrowCalls.confirm())}>
         Confirm receipt and pay the seller
       </Button>
     </div>
