@@ -1,13 +1,70 @@
 'use client';
 
-import { StrKey } from '@stellar/stellar-sdk';
-import { useMemo, useState } from 'react';
+import { Account, Contract, StrKey, TransactionBuilder, rpc, scValToNative } from '@stellar/stellar-sdk';
+import { useEffect, useMemo, useState } from 'react';
 import { fromBaseUnits, toBaseUnits } from '@/sdk/amount';
 import { DELIVERY_METHOD_LABEL, PROOF_KINDS_BY_METHOD, WINDOW_MAX_SECONDS, WINDOW_MIN_SECONDS } from '@/sdk/terms';
 import type { CanonicalTerms, DeliveryMethod, ProofKindName, TermsInput } from '@/lib/api';
-import { config, railById } from '@/lib/config';
+import { config, railById, railForToken, type Rail } from '@/lib/config';
 import { useNow } from '@/lib/time';
 import { Alert, Button, ErrorText, Field, Input, Select, Textarea } from './ui';
+
+async function queryTokenMetadata(
+  tokenAddress: string,
+  rpcUrl: string,
+  networkPassphrase: string,
+): Promise<{ symbol: string; decimals: number } | null> {
+  const trimmed = tokenAddress.trim();
+  if (!StrKey.isValidContract(trimmed) && !StrKey.isValidEd25519PublicKey(trimmed)) {
+    return null;
+  }
+  const known = railForToken(trimmed);
+  if (known) return { symbol: known.displaySymbol, decimals: known.decimals };
+
+  try {
+    const server = new rpc.Server(rpcUrl);
+    const contract = new Contract(trimmed);
+    const dummyAccount = new Account('GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF', '0');
+
+    let decimals = 7;
+    let symbol = 'TOKEN';
+
+    try {
+      const simDec = await server.simulateTransaction(
+        new TransactionBuilder(dummyAccount, { fee: '100', networkPassphrase })
+          .addOperation(contract.call('decimals'))
+          .setTimeout(30)
+          .build(),
+      );
+      if (rpc.Api.isSimulationSuccess(simDec) && simDec.result) {
+        decimals = Number(scValToNative(simDec.result.retval));
+      }
+    } catch {
+      // fallback
+    }
+
+    try {
+      const simSym = await server.simulateTransaction(
+        new TransactionBuilder(dummyAccount, { fee: '100', networkPassphrase })
+          .addOperation(contract.call('symbol'))
+          .setTimeout(30)
+          .build(),
+      );
+      if (rpc.Api.isSimulationSuccess(simSym) && simSym.result) {
+        const val = scValToNative(simSym.result.retval);
+        if (typeof val === 'string' && val.length > 0) {
+          symbol = val;
+        }
+      }
+    } catch {
+      // fallback
+    }
+
+    return { symbol, decimals };
+  } catch {
+    return null;
+  }
+}
 
 type Unit = 'hours' | 'days';
 interface WindowValue {
@@ -62,11 +119,53 @@ export function TermsForm({
   onSubmit: (r: TermsFormResult) => Promise<void>;
 }) {
   const rails = config.rails;
+  const isCustomInitial = !!initial && !railById(initial.rail);
   const initialRail = (initial && railById(initial.rail)) ?? rails[0];
   const [role, setRole] = useState<'buyer' | 'seller'>('buyer');
   const [counterparty, setCounterparty] = useState('');
-  const [railId, setRailId] = useState(initialRail?.id ?? '');
-  const [amount, setAmount] = useState(initial && initialRail ? fromBaseUnits(initial.amount, initialRail.decimals).replace(/,/g, '') : '');
+  const [railId, setRailId] = useState(isCustomInitial ? 'custom' : (initialRail?.id ?? ''));
+  const [customToken, setCustomToken] = useState(isCustomInitial ? initial.rail : '');
+  const [customMetadata, setCustomMetadata] = useState<{ symbol: string; decimals: number } | null>(null);
+  const [loadingMetadata, setLoadingMetadata] = useState(false);
+
+  useEffect(() => {
+    if (railId !== 'custom' || !customToken.trim()) {
+      setCustomMetadata(null);
+      return;
+    }
+    const trimmed = customToken.trim();
+    if (!StrKey.isValidContract(trimmed) && !StrKey.isValidEd25519PublicKey(trimmed)) {
+      setCustomMetadata(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingMetadata(true);
+    void queryTokenMetadata(trimmed, config.rpcUrl, config.networkPassphrase).then((meta) => {
+      if (cancelled) return;
+      setCustomMetadata(meta);
+      setLoadingMetadata(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [railId, customToken]);
+
+  const customRail: Rail | undefined = useMemo(() => {
+    if (railId !== 'custom') return undefined;
+    return {
+      id: customToken.trim() || 'custom',
+      tokenAddress: customToken.trim(),
+      displaySymbol: customMetadata?.symbol ?? 'units',
+      decimals: customMetadata?.decimals ?? 7,
+    };
+  }, [railId, customToken, customMetadata]);
+
+  const rail = railId === 'custom' ? customRail : railById(railId);
+  const [amount, setAmount] = useState(
+    initial
+      ? fromBaseUnits(initial.amount, initialRail?.decimals ?? 7).replace(/,/g, '')
+      : '',
+  );
   const [title, setTitle] = useState(initial?.item.title ?? '');
   const [description, setDescription] = useState(initial?.item.description ?? '');
   const [method, setMethod] = useState<DeliveryMethod>(initial?.delivery.method ?? 'in_person');
@@ -85,12 +184,17 @@ export function TermsForm({
 
   const now = useNow(10_000);
   const allowedKinds = PROOF_KINDS_BY_METHOD[method] as readonly ProofKindName[];
-  const rail = railById(railId);
 
   const problems = useMemo(() => {
     const p: string[] = [];
     if (withParties && !StrKey.isValidEd25519PublicKey(counterparty.trim())) p.push('Enter the other party’s Stellar account (G…).');
     if (!title.trim()) p.push('Describe the item.');
+    if (railId === 'custom') {
+      const trimmed = customToken.trim();
+      if (!trimmed || (!StrKey.isValidContract(trimmed) && !StrKey.isValidEd25519PublicKey(trimmed))) {
+        p.push('Enter a valid custom token contract address (C…).');
+      }
+    }
     if (!rail) p.push('Choose a settlement currency.');
     else {
       try {
@@ -165,7 +269,7 @@ export function TermsForm({
           <Textarea value={description} maxLength={5000} onChange={(e) => setDescription(e.target.value)} />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Price">
+          <Field label={rail ? `Price (${rail.displaySymbol})` : 'Price'}>
             <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
           </Field>
           <Field label="Settled in">
@@ -175,9 +279,30 @@ export function TermsForm({
                   {r.displaySymbol}
                 </option>
               ))}
+              <option value="custom">Custom asset address...</option>
             </Select>
           </Field>
         </div>
+        {railId === 'custom' && (
+          <Field
+            label="Custom token contract address"
+            hint={
+              loadingMetadata
+                ? 'Querying token metadata on-chain...'
+                : customMetadata
+                  ? `Detected token symbol: ${customMetadata.symbol} (precision: ${customMetadata.decimals} decimals)`
+                  : 'Enter contract address (C…) to automatically detect symbol and decimals'
+            }
+          >
+            <Input
+              className="font-mono"
+              value={customToken}
+              onChange={(e) => setCustomToken(e.target.value)}
+              placeholder="C…"
+              spellCheck={false}
+            />
+          </Field>
+        )}
       </fieldset>
 
       <fieldset className="space-y-4">
