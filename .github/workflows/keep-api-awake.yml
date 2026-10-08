@@ -1,0 +1,57 @@
+name: Keep API awake
+
+# Second half of a pair. The backend repo runs the same ping at :02,:07,:12…
+# and this one fires at :04,:09,:14…, so the two interleave and the API is
+# touched roughly every 2.5 minutes against Render's ~15 minute idle timer.
+#
+# This lives in the frontend repo because the frontend is what breaks when the
+# API is asleep: the marketing page is served by Vercel and is unaffected, but
+# the first call after a sleep is POST /auth/challenge, so "Connect Freighter
+# and sign in" appears to do nothing for 25-35 seconds while Render starts the
+# container.
+#
+# Honest limitation: both halves are GitHub-scheduled, so they fail together
+# when GitHub delays scheduled work. Interleaving narrows the window, it does
+# not make this independent. Genuine independence needs an off-GitHub monitor.
+#
+# Turn both off from the Actions tab when the demo period is over: staying
+# awake costs about 730 of Render's 750 free instance hours a month.
+
+on:
+  schedule:
+    - cron: '4,9,14,19,24,29,34,39,44,49,54,59 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: keep-api-awake
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the API health endpoint
+        env:
+          # /healthz runs `select 1` against Postgres before answering, so a pass
+          # means the database is reachable too, not just that Node booted.
+          URL: https://trustescrow-api-k5us.onrender.com/healthz
+        run: |
+          for attempt in 1 2 3; do
+            if body=$(curl -sS --max-time 90 -w '\n%{http_code}\n%{time_total}' "$URL"); then
+              code=$(printf '%s' "$body" | tail -2 | head -1)
+              secs=$(printf '%s' "$body" | tail -1)
+              payload=$(printf '%s' "$body" | head -n -2)
+              if [ "$code" = "200" ] && printf '%s' "$payload" | grep -q '"status":"ok"'; then
+                echo "awake after ${secs}s (attempt $attempt): $payload"
+                exit 0
+              fi
+              echo "attempt $attempt: HTTP $code in ${secs}s -> $payload"
+            else
+              echo "attempt $attempt: request failed"
+            fi
+            sleep 10
+          done
+          echo "::error::API did not report healthy after 3 attempts"
+          exit 1
