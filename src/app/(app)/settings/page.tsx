@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import QRCode from 'qrcode';
 import { type ReactNode, useEffect, useState } from 'react';
 import { RequireAuth } from '@/components/SignIn';
-import { Addr, Alert, Badge, Button, Card, ErrorText, Field, Input, PageTitle } from '@/components/ui';
+import { Addr, Alert, Badge, Button, Card, ErrorText, Field, Input, Modal, PageTitle } from '@/components/ui';
 import { knownPasskeys, rememberPasskey } from '@/components/Vault';
 import { createVaultPasskey, passkeysSupported } from '@/sdk/vault';
 import { api } from '@/lib/api';
@@ -82,8 +82,37 @@ function Payout() {
   const { me, refreshMe } = useAuth();
   const { withStepUp } = useStepUp();
   const [address, setAddress] = useState('');
+  const [showTotpModal, setShowTotpModal] = useState(false);
+  const [totpCode, setTotpCode] = useState('');
   const { busy, error, run } = useAction();
   const valid = StrKey.isValidEd25519PublicKey(address.trim()) || StrKey.isValidContract(address.trim());
+
+  const handleUpdate = () => {
+    if (!valid) return;
+    if (me?.twoFactorEnabled) {
+      setTotpCode('');
+      setShowTotpModal(true);
+    } else {
+      void run('payout', async () => {
+        await withStepUp(() => api.setPayoutAddress(address.trim()));
+        setAddress('');
+        await refreshMe();
+      });
+    }
+  };
+
+  const handleConfirmTotp = () => {
+    if (!totpCode.trim()) return;
+    void run('payout', async () => {
+      await api.stepUpWithCode(totpCode.trim());
+      await api.setPayoutAddress(address.trim());
+      setShowTotpModal(false);
+      setTotpCode('');
+      setAddress('');
+      await refreshMe();
+    });
+  };
+
   return (
     <Card title="Payout address">
       <div className="space-y-3">
@@ -99,10 +128,46 @@ function Payout() {
           variant="secondary"
           busy={busy === 'payout'}
           disabled={!valid}
-          onClick={() => void run('payout', async () => (await withStepUp(() => api.setPayoutAddress(address.trim())), setAddress(''), refreshMe()))}
+          onClick={handleUpdate}
         >
           Change payout address
         </Button>
+
+        <Modal open={showTotpModal} title="Two-Factor Authentication Required" onClose={() => setShowTotpModal(false)}>
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600">
+              Updating your seller payout address is a protected security setting. Please enter the 6-digit verification code from your authenticator app to authorize this change.
+            </p>
+            <div className="rounded-lg bg-slate-50 p-3 text-xs space-y-1">
+              <span className="text-slate-500">Destination Payout Address:</span>
+              <p className="font-mono text-slate-900 break-all">{address.trim()}</p>
+            </div>
+            <Field label="6-digit authentication code">
+              <Input
+                autoFocus
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="123456"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && totpCode.trim() && handleConfirmTotp()}
+              />
+            </Field>
+            <ErrorText error={error} />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="secondary" onClick={() => setShowTotpModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                busy={busy === 'payout'}
+                disabled={!totpCode.trim()}
+                onClick={handleConfirmTotp}
+              >
+                Verify and update address
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </Card>
   );
