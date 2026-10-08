@@ -10,7 +10,7 @@ import { CodeInput } from '@/components/code';
 import { Amount, Countdown, StateBadge, TermsSummary, Timeline } from '@/components/escrow-bits';
 import { EvidencePanel } from '@/components/Evidence';
 import { RequireAuth } from '@/components/SignIn';
-import { Addr, Alert, Button, Card, ErrorText, Field, Hash, Input, PageTitle, Row, Spinner } from '@/components/ui';
+import { Addr, Alert, Button, Card, ErrorText, Field, Hash, Input, Modal, PageTitle, Row, Spinner } from '@/components/ui';
 import { termsHashHex } from '@/sdk/canonical-json';
 import { escrowCalls } from '@/sdk/chain';
 import { hashFile, PROOF_KIND_HELP } from '@/sdk/proof';
@@ -75,6 +75,7 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
   const now = useNow();
   const [choice, setChoice] = useState<Outcome | null>(null);
   const [ack, setAck] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const deadline = e.dispute?.deadline ?? 0;
   const { payout } = payoutOnRelease(e.amount, e.feeBps);
 
@@ -87,6 +88,16 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
       </Alert>
     );
   }
+
+  const executeRuling = () => {
+    if (!choice) return;
+    void tx
+      .run(choice === 'Release' ? 'Rule: release to seller' : 'Rule: refund buyer', ({ sign, address, onStep }) =>
+        chain.escrow(e.contractId, address, sign, onStep)(escrowCalls.resolve(choice)),
+      )
+      .then(onDone)
+      .catch(() => undefined);
+  };
 
   return (
     <div className="space-y-3">
@@ -115,19 +126,53 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
             <input type="checkbox" className="mt-1" checked={ack} onChange={(ev) => setAck(ev.target.checked)} />
             <span>I have reviewed the proof, the terms, the messages and the evidence.</span>
           </label>
-          <Button
-            disabled={!ack}
-            onClick={() =>
-              void tx
-                .run(choice === 'Release' ? 'Rule: release to seller' : 'Rule: refund buyer', ({ sign, address, onStep }) =>
-                  chain.escrow(e.contractId, address, sign, onStep)(escrowCalls.resolve(choice)),
-                )
-                .then(onDone)
-                .catch(() => undefined)
-            }
-          >
+          <Button disabled={!ack} onClick={() => setShowConfirm(true)}>
             Sign ruling
           </Button>
+
+          <Modal open={showConfirm} title="Confirm Irrevocable Ruling" onClose={() => setShowConfirm(false)}>
+            <div className="space-y-4">
+              <p className="text-sm text-slate-600">
+                Please review this dispute ruling carefully. Once signed, this decision cannot be undone and transfers funds immediately on-chain.
+              </p>
+              <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Ruling Decision:</span>
+                  <span className="font-semibold text-slate-900">{choice === 'Release' ? 'Release funds to seller' : 'Refund funds to buyer'}</span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span className="text-slate-500">Recipient Account:</span>
+                  <span className="truncate font-mono text-xs">{choice === 'Release' ? e.seller : e.buyer}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Payout to Party:</span>
+                  <span className="font-medium text-slate-900">
+                    {choice === 'Release' ? <Amount token={e.token} units={payout} /> : <Amount token={e.token} units={e.amount} />}
+                  </span>
+                </div>
+                {choice === 'Release' && e.feeBps > 0 && (
+                  <div className="flex justify-between text-xs text-slate-500">
+                    <span>Platform Fee ({(e.feeBps / 100).toFixed(2)}%):</span>
+                    <span><Amount token={e.token} units={e.amount - payout} /></span>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant={choice === 'Release' ? 'primary' : 'danger'}
+                  onClick={() => {
+                    setShowConfirm(false);
+                    executeRuling();
+                  }}
+                >
+                  Confirm and sign ruling
+                </Button>
+              </div>
+            </div>
+          </Modal>
         </>
       )}
     </div>
