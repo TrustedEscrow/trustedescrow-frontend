@@ -34,6 +34,65 @@ export function SignInPanel() {
   );
 }
 
+const TESTNET_STEPS: { title: string; body: ReactNode }[] = [
+  {
+    title: 'Install Freighter',
+    body: (
+      <>
+        The Stellar wallet extension, from{' '}
+        <a className="font-medium text-brand-700 underline underline-offset-2" href="https://www.freighter.app" target="_blank" rel="noreferrer">
+          freighter.app
+        </a>
+        .
+      </>
+    ),
+  },
+  { title: 'Switch it to Testnet', body: 'In Freighter’s settings. Nothing here touches real funds.' },
+  { title: 'Fund the account', body: 'Freighter offers to fund a new testnet account with Friendbot, Stellar’s free test-XLM faucet.' },
+  {
+    title: 'Get testnet USDC',
+    body: (
+      <>
+        Add a USDC trustline, then claim some from{' '}
+        <a className="font-medium text-brand-700 underline underline-offset-2" href="https://faucet.circle.com" target="_blank" rel="noreferrer">
+          Circle’s faucet
+        </a>{' '}
+        to fund an escrow.
+      </>
+    ),
+  },
+];
+
+/** The signed-out screen inside the app: sign-in, plus what a first-time testnet user needs. */
+function SignInScreen() {
+  return (
+    <div className="mx-auto grid max-w-4xl gap-6 pt-4 md:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-4">
+        <div>
+          <h1 className="font-display text-4xl">Sign in</h1>
+          <p className="mt-1 text-sm text-slate-600">Propose orders, fund escrows and release payment from one place.</p>
+        </div>
+        <SignInPanel />
+      </div>
+      <aside className="rounded-2xl bg-night p-6 text-white">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-brand-300">First time on testnet?</p>
+        <ol className="mt-4 space-y-4">
+          {TESTNET_STEPS.map((s, i) => (
+            <li key={s.title} className="grid grid-cols-[1.75rem_1fr] gap-2">
+              <span className="font-display text-xl leading-none text-brand-300">{i + 1}</span>
+              <div>
+                <p className="font-medium">{s.title}</p>
+                <p className="mt-0.5 text-sm text-white/60 [&_a]:text-brand-300">{s.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 text-xs text-white/40">To try a full trade, use two Freighter accounts: one as the buyer, one as the seller.</p>
+      </aside>
+    </div>
+  );
+}
+
 function TwoFactorPanel() {
   const { completeTwoFactor, signOut } = useAuth();
   const [code, setCode] = useState('');
@@ -81,7 +140,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     );
   }
   if (status === 'pending_2fa') return <TwoFactorPanel />;
-  if (status === 'signed_out') return <SignInPanel />;
+  if (status === 'signed_out') return <SignInScreen />;
   return <>{children}</>;
 }
 

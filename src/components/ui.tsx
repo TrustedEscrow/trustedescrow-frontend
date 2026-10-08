@@ -1,10 +1,9 @@
 'use client';
 
 import { type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes, useEffect, useState } from 'react';
+import { cx, shortAddress } from '@/lib/cx';
 
-export function cx(...parts: (string | false | null | undefined)[]): string {
-  return parts.filter(Boolean).join(' ');
-}
+export { cx, shortAddress };
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -45,7 +44,7 @@ export function Spinner({ className }: { className?: string }) {
 
 export function Card({ title, actions, children, className }: { title?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cx('rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5', className)}>
+    <section className={cx('rounded-2xl bg-white p-4 ring-1 ring-line sm:p-6', className)}>
       {(title || actions) && (
         <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
           {title && <h2 className="text-base font-semibold">{title}</h2>}
@@ -132,11 +131,6 @@ export function Modal({ open, title, onClose, children, dismissable = true }: { 
   );
 }
 
-export function shortAddress(a: string | null | undefined, n = 4): string {
-  if (!a) return '—';
-  return a.length > 2 * n + 1 ? `${a.slice(0, n)}…${a.slice(-n)}` : a;
-}
-
 export function CopyButton({ value, label = 'Copy' }: { value: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -199,7 +193,7 @@ export function Row({ label, children }: { label: ReactNode; children: ReactNode
 export function PageTitle({ children, sub }: { children: ReactNode; sub?: ReactNode }) {
   return (
     <div className="mb-5">
-      <h1 className="text-2xl font-bold tracking-tight">{children}</h1>
+      <h1 className="font-display text-4xl">{children}</h1>
       {sub && <p className="mt-1 text-sm text-slate-600">{sub}</p>}
     </div>
   );

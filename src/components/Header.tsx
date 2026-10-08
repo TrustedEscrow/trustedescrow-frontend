@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { isArbitrator, useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
 import { useNotifications } from '@/lib/queries';
+import { Wordmark } from './Logo';
 import { Badge, Button, cx, shortAddress } from './ui';
 
 export function Header() {
@@ -27,13 +28,10 @@ export function Header() {
     : [];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-        <Link href={signedIn ? '/dashboard' : '/'} className="flex items-center gap-2 font-bold tracking-tight text-brand-800">
-          <span aria-hidden className="grid h-7 w-7 place-items-center rounded-md bg-brand-700 text-sm text-white">
-            TE
-          </span>
-          TrustEscrow
+        <Link href="/" className="flex items-center gap-2">
+          <Wordmark />
           {config.network !== 'public' && <Badge className="bg-amber-100 text-amber-900">{config.network}</Badge>}
         </Link>
 

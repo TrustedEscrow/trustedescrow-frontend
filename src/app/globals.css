@@ -1,15 +1,28 @@
 @import 'tailwindcss';
 
-@theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+@theme inline {
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: var(--font-instrument), Georgia, 'Times New Roman', serif;
+}
 
+@theme {
   --color-brand-50: #ecfdf5;
   --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
   --color-brand-600: #047857;
   --color-brand-700: #065f46;
   --color-brand-800: #064e3b;
-  --color-ink: #0f172a;
+  --color-brand-900: #022c22;
+
+  --color-ink: #0d1b16;
+  --color-paper: #f7f6f2;
+  --color-line: #e3e1d8;
+  --color-night: #08140f;
+  --color-night-2: #0e2019;
 }
 
 :root {
@@ -17,9 +30,10 @@
 }
 
 body {
-  background: #f8fafc;
+  background: var(--color-paper);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* Codes and hashes must never be ambiguous on screen. */
@@ -27,4 +41,16 @@ body {
   font-family: var(--font-mono);
   font-variant-ligatures: none;
   letter-spacing: 0.08em;
+}
+
+/* Fine grid on dark marketing sections. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
