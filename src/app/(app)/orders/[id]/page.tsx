@@ -10,6 +10,7 @@ import { TermsSummary } from '@/components/escrow-bits';
 import { RequireAuth } from '@/components/SignIn';
 import { TermsForm } from '@/components/TermsForm';
 import { Addr, Alert, Badge, Button, Card, ErrorText, PageTitle, Spinner } from '@/components/ui';
+import { canonicalJson, termsHashHex } from '@/sdk/canonical-json';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useDraft } from '@/lib/queries';
@@ -51,21 +52,53 @@ function Order({ id }: { id: string }) {
     }
   };
 
+  const exportTerms = async () => {
+    if (!current) return;
+    const hash = await termsHashHex(current.terms);
+    const canonical = canonicalJson(current.terms);
+    const exportPayload = {
+      draftId: id,
+      status: draft.status,
+      revision: current.revision,
+      agreed: draft.status === 'agreed' || draft.status === 'linked',
+      buyer: draft.buyerAddress,
+      seller: draft.sellerAddress,
+      termsHashHex: hash,
+      canonicalJson: canonical,
+      terms: current.terms,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `order-${id}-terms-r${current.revision}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-5">
       <div>
         <Link href="/dashboard" className="text-sm text-brand-700">
           ← Dashboard
         </Link>
-        <PageTitle
-          sub={
-            <>
-              You are the <strong>{role}</strong>. {role === 'buyer' ? 'Seller' : 'Buyer'}: <Addr value={counterparty} />
-            </>
-          }
-        >
-          {current?.terms.item.title ?? 'Order'} <Badge className="align-middle">{STATUS_LABEL[draft.status]}</Badge>
-        </PageTitle>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <PageTitle
+            sub={
+              <>
+                You are the <strong>{role}</strong>. {role === 'buyer' ? 'Seller' : 'Buyer'}: <Addr value={counterparty} />
+              </>
+            }
+          >
+            {current?.terms.item.title ?? 'Order'} <Badge className="align-middle">{STATUS_LABEL[draft.status]}</Badge>
+          </PageTitle>
+          {current && (
+            <Button variant="secondary" onClick={() => void exportTerms()}>
+              Export Terms JSON
+            </Button>
+          )}
+        </div>
       </div>
 
       {draft.status === 'linked' && draft.escrowContractId && (
@@ -78,15 +111,29 @@ function Order({ id }: { id: string }) {
 
       {draft.status === 'agreed' && role === 'buyer' && <CreateEscrow draft={draft} />}
       {draft.status === 'agreed' && role === 'seller' && (
-        <Alert tone="info" title="Terms agreed">
-          Waiting for the buyer to create and fund the escrow. Don&apos;t hand anything over before the escrow shows as funded.
-        </Alert>
+        <>
+          <Alert tone="info" title="Terms agreed">
+            Waiting for the buyer to create and fund the escrow. Don&apos;t hand anything over before the escrow shows as funded.
+          </Alert>
+          {current && (
+            <Card
+              title="Agreed terms"
+              actions={<span className="text-xs text-slate-500">{formatDate(current.createdAt)}</span>}
+            >
+              <TermsSummary terms={current.terms} />
+            </Card>
+          )}
+        </>
       )}
 
       {current && draft.status !== 'agreed' && (
         <Card
           title={`Revision ${current.revision}${current.proposedBy === me?.address ? ' (your proposal)' : ''}`}
-          actions={<span className="text-xs text-slate-500">{formatDate(current.createdAt)}</span>}
+          actions={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">{formatDate(current.createdAt)}</span>
+            </div>
+          }
         >
           <TermsSummary terms={current.terms} />
           {current.note && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm italic text-slate-700">“{current.note}”</p>}
