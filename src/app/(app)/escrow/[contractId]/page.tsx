@@ -30,14 +30,16 @@ function EscrowView({ id }: { id: string }) {
   const wasm = useEscrowWasm(id);
   const draftId = useEscrowDraftId(id).data ?? null;
   const terms = useAgreedTerms(draftId, !!draftId);
+  // These stay above the early returns: a hook can't be called conditionally, or React
+  // sees a different number of hooks once the escrow finishes loading. Both are
+  // `enabled`-gated internally, so neither fetches until its inputs exist.
+  const version = useEscrowVersion(id);
+  const provenance = useEscrowProvenance(id, escrow.data?.buyer, escrow.data?.salt);
 
   if (escrow.isLoading) return <Spinner />;
   if (escrow.error) return <ErrorText error={escrow.error} />;
   const e = escrow.data;
   if (!e) return null;
-
-  const version = useEscrowVersion(id);
-  const provenance = useEscrowProvenance(id, e.buyer, e.salt);
 
   const viewer = viewerOf(e, walletAddress);
   const sessionViewer = viewerOf(e, me?.address);

@@ -125,30 +125,31 @@ export function TermsForm({
   const [counterparty, setCounterparty] = useState('');
   const [railId, setRailId] = useState(isCustomInitial ? 'custom' : (initialRail?.id ?? ''));
   const [customToken, setCustomToken] = useState(isCustomInitial ? initial.rail : '');
-  const [customMetadata, setCustomMetadata] = useState<{ symbol: string; decimals: number } | null>(null);
-  const [loadingMetadata, setLoadingMetadata] = useState(false);
+  /** Keyed by the token it was fetched for, so a result never shows against a later token. */
+  const [fetched, setFetched] = useState<{ token: string; meta: { symbol: string; decimals: number } | null } | null>(null);
+
+  const trimmedToken = customToken.trim();
+  const lookupToken =
+    railId === 'custom' && trimmedToken && (StrKey.isValidContract(trimmedToken) || StrKey.isValidEd25519PublicKey(trimmedToken)) ? trimmedToken : null;
 
   useEffect(() => {
-    if (railId !== 'custom' || !customToken.trim()) {
-      setCustomMetadata(null);
-      return;
-    }
-    const trimmed = customToken.trim();
-    if (!StrKey.isValidContract(trimmed) && !StrKey.isValidEd25519PublicKey(trimmed)) {
-      setCustomMetadata(null);
-      return;
-    }
+    if (!lookupToken) return;
     let cancelled = false;
-    setLoadingMetadata(true);
-    void queryTokenMetadata(trimmed, config.rpcUrl, config.networkPassphrase).then((meta) => {
-      if (cancelled) return;
-      setCustomMetadata(meta);
-      setLoadingMetadata(false);
-    });
+    void queryTokenMetadata(lookupToken, config.rpcUrl, config.networkPassphrase)
+      .then((meta) => {
+        if (!cancelled) setFetched({ token: lookupToken, meta });
+      })
+      .catch(() => {
+        // An unreadable token just means no symbol or decimals to show; the form still works.
+        if (!cancelled) setFetched({ token: lookupToken, meta: null });
+      });
     return () => {
       cancelled = true;
     };
-  }, [railId, customToken]);
+  }, [lookupToken]);
+
+  const customMetadata = lookupToken && fetched?.token === lookupToken ? fetched.meta : null;
+  const loadingMetadata = !!lookupToken && fetched?.token !== lookupToken;
 
   const customRail: Rail | undefined = useMemo(() => {
     if (railId !== 'custom') return undefined;

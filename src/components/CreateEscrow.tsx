@@ -73,6 +73,16 @@ export function CreateEscrow({ draft }: { draft: Draft }) {
   const factory = useQuery({ queryKey: ['factory-config'], queryFn: () => chain.assertPinnedFactory(), retry: false, staleTime: 60_000 });
   const problems = configProblems();
 
+  // Stays above the early returns: a hook can't be called conditionally, or React sees a
+  // different number of hooks once the terms load. `enabled` keeps it from running until
+  // the terms are in and the buyer's own wallet is connected.
+  const agreed = terms.data?.terms;
+  const readiness = useQuery({
+    queryKey: ['readiness', agreed?.token, walletAddress, agreed?.amount],
+    queryFn: () => chain.readiness(agreed!.token, walletAddress!, BigInt(agreed!.amount)),
+    enabled: !!agreed && !!walletAddress && walletAddress === agreed.buyer,
+  });
+
   if (problems.length) return <Alert tone="danger" title="This build can't create escrows">{problems.join('; ')}</Alert>;
   if (terms.isLoading) return <Spinner />;
   if (terms.error) return <ErrorText error={terms.error} />;
@@ -82,12 +92,6 @@ export function CreateEscrow({ draft }: { draft: Draft }) {
   const rail = railForToken(t.token);
   const tok = tokenDisplay(t.token);
   const wrongWallet = !!walletAddress && walletAddress !== t.buyer;
-
-  const readiness = useQuery({
-    queryKey: ['readiness', t.token, walletAddress, t.amount],
-    queryFn: () => chain.readiness(t.token, walletAddress!, BigInt(t.amount)),
-    enabled: !!walletAddress && walletAddress === t.buyer,
-  });
 
   const r = readiness.data;
   const isNotReady = !!r && (!r.accountExists || !r.hasTrustline || !r.enough);

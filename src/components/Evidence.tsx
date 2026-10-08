@@ -10,27 +10,25 @@ import { formatDate } from '@/lib/time';
 import { Alert, Button, Empty, ErrorText, Field, Input, Textarea } from './ui';
 
 function StatementVerificationBadge({ statement, expectedHash }: { statement: string; expectedHash?: string | null }) {
-  const [status, setStatus] = useState<'checking' | 'verified' | 'mismatch' | 'none'>('checking');
+  /** Keyed by the statement it was computed for, so a result never shows against a later one. */
+  const [hashed, setHashed] = useState<{ statement: string; hash: string } | null>(null);
 
   useEffect(() => {
-    if (!expectedHash) {
-      setStatus('none');
-      return;
-    }
+    if (!expectedHash) return;
     let active = true;
-    hashStatement(statement).then((h) => {
-      if (active) {
-        setStatus(h.toLowerCase() === expectedHash.toLowerCase() ? 'verified' : 'mismatch');
-      }
+    void hashStatement(statement).then((h) => {
+      if (active) setHashed({ statement, hash: h });
     });
     return () => {
       active = false;
     };
   }, [statement, expectedHash]);
 
-  if (status === 'none') return null;
-  if (status === 'checking') return <span className="text-xs text-slate-400">Verifying statement hash…</span>;
-  if (status === 'verified') return <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ statement_hash verified</span>;
+  if (!expectedHash) return null;
+  const hash = hashed?.statement === statement ? hashed.hash : null;
+  if (!hash) return <span className="text-xs text-slate-400">Verifying statement hash…</span>;
+  if (hash.toLowerCase() === expectedHash.toLowerCase())
+    return <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ statement_hash verified</span>;
   return <span className="inline-flex items-center text-xs font-medium text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">✗ statement_hash mismatch</span>;
 }
 
