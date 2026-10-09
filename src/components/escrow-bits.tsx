@@ -8,13 +8,13 @@ import { formatDate, formatDuration, formatWindow, useNow } from '@/lib/time';
 import { Addr, Badge, Row } from './ui';
 
 const STATE_STYLE: Record<EscrowState, string> = {
-  Created: 'bg-slate-100 text-slate-700',
+  Created: 'bg-surface-2 text-muted',
   Funded: 'bg-sky-100 text-sky-800',
   Delivered: 'bg-violet-100 text-violet-800',
   Disputed: 'bg-amber-100 text-amber-900',
   Released: 'bg-emerald-100 text-emerald-800',
   Refunded: 'bg-teal-100 text-teal-800',
-  Cancelled: 'bg-slate-200 text-slate-600',
+  Cancelled: 'bg-surface-2 text-faint',
 };
 
 const STATE_LABEL: Record<EscrowState, string> = {
@@ -46,10 +46,10 @@ export function Countdown({ at, label, after }: { at: number; label: string; aft
   const left = at - now;
   const passed = left <= 0;
   return (
-    <div className={passed ? 'rounded-lg bg-amber-50 p-3 ring-1 ring-amber-200' : 'rounded-lg bg-slate-50 p-3 ring-1 ring-slate-200'}>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
+    <div className={passed ? 'rounded-lg bg-amber-50 p-3 ring-1 ring-amber-200' : 'rounded-lg bg-surface-2 p-3 ring-1 ring-line'}>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
       <p className="text-lg font-semibold">{passed ? 'Passed' : formatDuration(left)}</p>
-      <p className="text-xs text-slate-500">{formatDate(at)}</p>
+      <p className="text-xs text-muted">{formatDate(at)}</p>
       {passed && after && <p className="mt-1 text-xs text-amber-900">{after}</p>}
     </div>
   );
@@ -63,13 +63,13 @@ export function TermsSummary({ terms, feeBps }: { terms: AgreedTerms; feeBps?: n
     <div className="space-y-3">
       <div>
         <p className="text-lg font-semibold">{terms.item.title}</p>
-        {terms.item.description && <p className="whitespace-pre-wrap text-sm text-slate-600">{terms.item.description}</p>}
+        {terms.item.description && <p className="whitespace-pre-wrap text-sm text-muted">{terms.item.description}</p>}
       </div>
       <dl className="divide-y divide-slate-100">
         <Row label="Price">{formatAmount(amount, t.decimals, t.symbol)}</Row>
         {split && (
           <Row label="Seller receives on release">
-            {formatAmount(split.payout, t.decimals, t.symbol)} <span className="text-xs text-slate-500">(fee {formatAmount(split.fee, t.decimals, t.symbol)}, only on release)</span>
+            {formatAmount(split.payout, t.decimals, t.symbol)} <span className="text-xs text-muted">(fee {formatAmount(split.fee, t.decimals, t.symbol)}, only on release)</span>
           </Row>
         )}
         <Row label="Delivery">{DELIVERY_METHOD_LABEL[terms.delivery.method]}{terms.delivery.carrier ? ` · ${terms.delivery.carrier}` : ''}</Row>
@@ -85,7 +85,7 @@ export function TermsSummary({ terms, feeBps }: { terms: AgreedTerms; feeBps?: n
           <Addr value={terms.seller} />
         </Row>
       </dl>
-      {terms.delivery.notes && <p className="whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{terms.delivery.notes}</p>}
+      {terms.delivery.notes && <p className="whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm text-muted">{terms.delivery.notes}</p>}
     </div>
   );
 }
@@ -120,8 +120,8 @@ export function Timeline({ e }: { e: EscrowSnapshot }) {
         return (
           <li key={s.state} className="flex items-center gap-3">
             <span className={at ? 'h-2.5 w-2.5 rounded-full bg-brand-600' : 'h-2.5 w-2.5 rounded-full bg-slate-300'} />
-            <span className={at ? 'font-medium' : 'text-slate-400'}>{s.label}</span>
-            {at > 0 && <span className="text-xs text-slate-500">{formatDate(at)}</span>}
+            <span className={at ? 'font-medium' : 'text-faint'}>{s.label}</span>
+            {at > 0 && <span className="text-xs text-muted">{formatDate(at)}</span>}
           </li>
         );
       })}
@@ -131,7 +131,7 @@ export function Timeline({ e }: { e: EscrowSnapshot }) {
           <span className="font-medium">
             Disputed ({e.dispute.openedBy === 'ReceiptTimeout' ? 'buyer gave no receipt in time' : `by the ${e.dispute.openedBy.toLowerCase()}`})
           </span>
-          <span className="text-xs text-slate-500">{formatDate(e.dispute.openedAt)}</span>
+          <span className="text-xs text-muted">{formatDate(e.dispute.openedAt)}</span>
         </li>
       )}
       {final && (

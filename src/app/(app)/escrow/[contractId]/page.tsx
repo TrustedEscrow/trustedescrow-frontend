@@ -69,7 +69,7 @@ function EscrowView({ id }: { id: string }) {
         </PageTitle>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {version.data && (
-            <span className="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+            <span className="inline-flex items-center rounded border border-line bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">
               v{version.data}
             </span>
           )}
@@ -105,7 +105,7 @@ function EscrowView({ id }: { id: string }) {
               <div className="space-y-1">
                 <StateBadge state={e.state} />
                 <Amount token={e.token} units={e.amount} className="block text-2xl font-bold" />
-                {settled && <p className="text-sm font-medium text-slate-700">{settled}</p>}
+                {settled && <p className="text-sm font-medium text-muted">{settled}</p>}
               </div>
               {deadline && !TERMINAL_STATES.has(e.state) && <Countdown at={deadline.at} label={deadline.label} after={deadline.after} />}
             </div>
@@ -131,7 +131,7 @@ function EscrowView({ id }: { id: string }) {
                 </Row>
                 <Row label="Submitted">{formatDate(e.proof.submittedAt)}</Row>
               </dl>
-              <p className="mt-2 text-xs text-slate-500">Committed on-chain. It cannot be changed.</p>
+              <p className="mt-2 text-xs text-muted">Committed on-chain. It cannot be changed.</p>
             </Card>
           )}
 
@@ -187,7 +187,7 @@ function EscrowView({ id }: { id: string }) {
               </Row>
             </dl>
           </Card>
-          <p className="text-xs text-slate-500">Read from ledger {e.ledger}. Everything on this page can also be done from a CLI against the contract.</p>
+          <p className="text-xs text-muted">Read from ledger {e.ledger}. Everything on this page can also be done from a CLI against the contract.</p>
         </aside>
       </div>
     </div>

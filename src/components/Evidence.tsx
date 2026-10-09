@@ -26,7 +26,7 @@ function StatementVerificationBadge({ statement, expectedHash }: { statement: st
 
   if (!expectedHash) return null;
   const hash = hashed?.statement === statement ? hashed.hash : null;
-  if (!hash) return <span className="text-xs text-slate-400">Verifying statement hash…</span>;
+  if (!hash) return <span className="text-xs text-faint">Verifying statement hash…</span>;
   if (hash.toLowerCase() === expectedHash.toLowerCase())
     return <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ statement_hash verified</span>;
   return <span className="inline-flex items-center text-xs font-medium text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">✗ statement_hash mismatch</span>;
@@ -143,9 +143,9 @@ export function EvidencePanel({
         {statements.data?.length ? (
           <ul className="space-y-2">
             {statements.data.map((s, i) => (
-              <li key={s.id ?? i} className="rounded-lg bg-slate-50 p-3 text-sm space-y-1">
+              <li key={s.id ?? i} className="rounded-lg bg-surface-2 p-3 text-sm space-y-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-medium text-slate-500">
+                  <p className="text-xs font-medium text-muted">
                     {s.role} · {formatDate(s.created_at)}
                   </p>
                   <StatementVerificationBadge statement={s.statement} expectedHash={statementHash} />
@@ -177,10 +177,10 @@ export function EvidencePanel({
               <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <div>
                   <p className="font-medium">{row.filename}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted">
                     {row.uploader_role} · {formatDate(row.created_at)} · {(row.size_bytes / 1024).toFixed(0)} KB · sha256 {row.sha256.slice(0, 12)}…
                   </p>
-                  {row.description && <p className="text-xs text-slate-600">{row.description}</p>}
+                  {row.description && <p className="text-xs text-muted">{row.description}</p>}
                 </div>
                 <DownloadButton row={row} />
               </li>
@@ -190,7 +190,7 @@ export function EvidencePanel({
           <Empty>No evidence uploaded.</Empty>
         )}
         {canUpload && (
-          <div className="space-y-2 rounded-lg p-3 ring-1 ring-slate-200">
+          <div className="space-y-2 rounded-lg p-3 ring-1 ring-line">
             <Field label="Add evidence" hint="Photos, receipts, PDFs or short videos, up to 10 MB.">
               <Input type="file" accept={ACCEPT} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </Field>

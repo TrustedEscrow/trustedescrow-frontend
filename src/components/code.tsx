@@ -50,12 +50,12 @@ export function DeliveryCodeDisplay({ code, onHide }: { code: string; onHide?: (
     <div className="space-y-4">
       <CodeWarning />
       {!acknowledged ? (
-        <label className="flex items-start gap-3 rounded-lg bg-slate-50 p-3 text-sm ring-1 ring-slate-200">
+        <label className="flex items-start gap-3 rounded-lg bg-surface-2 p-3 text-sm ring-1 ring-line">
           <input type="checkbox" className="mt-1 h-4 w-4" onChange={(e) => setAcknowledged(e.target.checked)} />
           <span>I have the item in my hands and I have checked it matches the agreed terms.</span>
         </label>
       ) : (
-        <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-4 ring-2 ring-brand-600">
+        <div className="flex flex-col items-center gap-3 rounded-xl bg-surface p-4 ring-2 ring-brand-600">
           <p className="font-code select-all text-center text-2xl font-bold sm:text-3xl" aria-label={`Delivery code ${[...code].join(' ')}`}>
             {display(code)}
           </p>
@@ -64,7 +64,7 @@ export function DeliveryCodeDisplay({ code, onHide }: { code: string; onHide?: (
           </Button>
           {/* eslint-disable-next-line @next/next/no-img-element -- data URL generated on device */}
           {qr && <img src={qr} alt="QR code of the delivery code" width={240} height={240} className="rounded" />}
-          <p className="text-xs text-slate-500">The seller scans or types this. Letters I, L and O are read as 1, 1 and 0.</p>
+          <p className="text-xs text-muted">The seller scans or types this. Letters I, L and O are read as 1, 1 and 0.</p>
         </div>
       )}
       {onHide && (
@@ -135,8 +135,8 @@ export function CodeInput({ expectedHash, onValid, autoFocus }: { expectedHash?:
         {status.kind === 'invalid' && <span className="text-red-700">{status.message}</span>}
         {status.kind === 'mismatch' && <span className="text-red-700">This is not the code for this escrow. Check each character.</span>}
         {status.kind === 'ok' && expectedHash && <span className="text-emerald-700">✓ Matches this escrow&apos;s committed code (checked on this device)</span>}
-        {status.kind === 'ok' && !expectedHash && <span className="text-slate-600">Reads as {display(status.canonical)}</span>}
-        {status.kind === 'empty' && <span className="text-slate-500">16 characters. Hyphens and spaces are ignored.</span>}
+        {status.kind === 'ok' && !expectedHash && <span className="text-muted">Reads as {display(status.canonical)}</span>}
+        {status.kind === 'empty' && <span className="text-muted">16 characters. Hyphens and spaces are ignored.</span>}
       </p>
     </div>
   );

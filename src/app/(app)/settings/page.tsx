@@ -63,7 +63,7 @@ function Email() {
   return (
     <Card title="Email reminders">
       <div className="space-y-3">
-        <p className="text-sm text-slate-600">Deadline reminders by email. Delivery codes are never sent by email or SMS.</p>
+        <p className="text-sm text-muted">Deadline reminders by email. Delivery codes are never sent by email or SMS.</p>
         {me?.email && <p className="text-sm">{me.email} {me.emailVerified ? <Badge className="bg-emerald-100 text-emerald-800">verified</Badge> : <Badge>not verified</Badge>}</p>}
         <Field label="Email address">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -135,12 +135,12 @@ function Payout() {
 
         <Modal open={showTotpModal} title="Two-Factor Authentication Required" onClose={() => setShowTotpModal(false)}>
           <div className="space-y-4">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted">
               Updating your seller payout address is a protected security setting. Please enter the 6-digit verification code from your authenticator app to authorize this change.
             </p>
-            <div className="rounded-lg bg-slate-50 p-3 text-xs space-y-1">
-              <span className="text-slate-500">Destination Payout Address:</span>
-              <p className="font-mono text-slate-900 break-all">{address.trim()}</p>
+            <div className="rounded-lg bg-surface-2 p-3 text-xs space-y-1">
+              <span className="text-muted">Destination Payout Address:</span>
+              <p className="font-mono text-ink break-all">{address.trim()}</p>
             </div>
             <Field label="6-digit authentication code">
               <Input
@@ -195,7 +195,7 @@ function TwoFactor() {
         </Alert>
         <ul className="grid grid-cols-2 gap-2 font-mono text-sm">
           {backup.map((c) => (
-            <li key={c} className="rounded bg-slate-50 px-2 py-1">
+            <li key={c} className="rounded bg-surface-2 px-2 py-1">
               {c}
             </li>
           ))}
@@ -253,7 +253,7 @@ function TwoFactor() {
   } else {
     body = (
       <div className="space-y-3">
-        <p className="text-sm text-slate-600">Without 2FA, sensitive actions ask for a fresh wallet signature. An authenticator app adds a second factor your wallet can&apos;t replace.</p>
+        <p className="text-sm text-muted">Without 2FA, sensitive actions ask for a fresh wallet signature. An authenticator app adds a second factor your wallet can&apos;t replace.</p>
         <Button busy={busy === 'setup'} onClick={() => void run('setup', async () => setSetup(await withStepUp(() => api.twoFactorSetup())))}>
           Set up 2FA
         </Button>
@@ -278,8 +278,8 @@ function Passkeys() {
   return (
     <Card title="Delivery code passkeys on this device">
       <div className="space-y-3">
-        <p className="text-sm text-slate-600">Passkeys unlock your delivery codes. They are separate from your wallet and never leave your device or password manager.</p>
-        {list.length ? <p className="text-sm">{list.length} passkey{list.length > 1 ? 's' : ''} created here.</p> : <p className="text-sm text-slate-500">None created on this device.</p>}
+        <p className="text-sm text-muted">Passkeys unlock your delivery codes. They are separate from your wallet and never leave your device or password manager.</p>
+        {list.length ? <p className="text-sm">{list.length} passkey{list.length > 1 ? 's' : ''} created here.</p> : <p className="text-sm text-muted">None created on this device.</p>}
         {passkeysSupported() ? (
           <Button
             variant="secondary"
@@ -317,7 +317,7 @@ function SessionsAndDevices() {
             <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
               <span>
                 {s.device_label ?? 'Unknown device'} {s.current && <Badge className="bg-brand-100 text-brand-800">this session</Badge>}
-                <span className="block text-xs text-slate-500">
+                <span className="block text-xs text-muted">
                   since {formatDate(s.created_at)} · {s.ip ?? ''}
                 </span>
               </span>
@@ -335,7 +335,7 @@ function SessionsAndDevices() {
             <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
               <span>
                 {d.label ?? 'Unknown device'} {d.trusted_at ? <Badge>trusted</Badge> : <Badge className="bg-amber-100 text-amber-900">untrusted</Badge>}
-                <span className="block text-xs text-slate-500">last seen {formatDate(d.last_seen_at)}</span>
+                <span className="block text-xs text-muted">last seen {formatDate(d.last_seen_at)}</span>
               </span>
               {d.trusted_at && (
                 <Button variant="ghost" onClick={() => void run('forget', async () => (await withStepUp(() => api.forgetDevice(d.id)), qc.invalidateQueries({ queryKey: ['devices'] }), qc.invalidateQueries({ queryKey: ['sessions'] })))}>

@@ -56,22 +56,22 @@ export function Chat({ draftId, releaseCodeHash, readOnly }: { draftId: string; 
 
   return (
     <div className="space-y-3">
-      <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg bg-slate-50 p-3">
+      <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg bg-surface-2 p-3">
         {error && <ErrorText error={error} />}
-        {count === 0 && <p className="text-center text-sm text-slate-500">No messages yet.</p>}
+        {count === 0 && <p className="text-center text-sm text-muted">No messages yet.</p>}
         {data?.messages.map((m) => {
           const mine = m.senderAddress === me?.address;
           if (m.senderRole === 'system') {
             return (
-              <p key={m.seq} className="text-center text-xs text-slate-500">
+              <p key={m.seq} className="text-center text-xs text-muted">
                 {m.body}
               </p>
             );
           }
           return (
             <div key={m.seq} className={cx('flex', mine ? 'justify-end' : 'justify-start')}>
-              <div className={cx('max-w-[85%] rounded-2xl px-3 py-2 text-sm', mine ? 'bg-brand-700 text-white' : m.senderRole === 'arbitrator' ? 'bg-amber-100' : 'bg-white ring-1 ring-slate-200')}>
-                <p className={cx('mb-0.5 text-[11px] font-medium', mine ? 'text-brand-100' : 'text-slate-500')}>
+              <div className={cx('max-w-[85%] rounded-2xl px-3 py-2 text-sm', mine ? 'bg-brand-700 text-white' : m.senderRole === 'arbitrator' ? 'bg-amber-100' : 'bg-surface ring-1 ring-line')}>
+                <p className={cx('mb-0.5 text-[11px] font-medium', mine ? 'text-brand-100' : 'text-muted')}>
                   {mine ? 'You' : m.senderRole === 'arbitrator' ? 'Arbitrator' : `${m.senderRole} · ${shortAddress(m.senderAddress)}`} · {formatDate(m.createdAt)}
                 </p>
                 <p className="whitespace-pre-wrap break-words">{m.body}</p>

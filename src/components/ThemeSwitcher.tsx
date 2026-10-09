@@ -65,7 +65,7 @@ export function ThemeSwitcher() {
     <button
       type="button"
       onClick={cycleTheme}
-      className="inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-ink focus:ring-2 focus:ring-brand-500 focus:outline-none"
+      className="inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-xs font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink focus:ring-2 focus:ring-brand-500 focus:outline-none"
       title={`Theme: ${theme} (click to toggle)`}
       aria-label={`Toggle theme mode, current mode is ${theme}`}
     >

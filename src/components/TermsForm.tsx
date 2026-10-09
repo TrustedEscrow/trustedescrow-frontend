@@ -363,7 +363,7 @@ export function TermsForm({
       </Field>
 
       {problems.length > 0 && (
-        <ul className="list-inside list-disc text-sm text-slate-600">
+        <ul className="list-inside list-disc text-sm text-muted">
           {problems.map((p) => (
             <li key={p}>{p}</li>
           ))}

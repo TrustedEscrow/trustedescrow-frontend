@@ -35,13 +35,13 @@ function EscrowRow({ e, mine, now }: { e: CachedEscrow; mine: Set<string>; now: 
   const step = nextStep(e, mine, now);
   const role = mine.has(e.buyer) ? 'Buying' : 'Selling';
   return (
-    <Link href={`/escrow/${e.contractId}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-slate-200 hover:bg-slate-50">
+    <Link href={`/escrow/${e.contractId}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-line hover:bg-surface-2">
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Badge>{role}</Badge>
           <StateBadge state={e.state} />
         </div>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           with <span className="font-mono">{shortAddress(role === 'Buying' ? e.seller : e.buyer)}</span>
           {step && <span className="ml-2 font-medium text-ink">· {step}</span>}
         </p>
@@ -54,13 +54,13 @@ function EscrowRow({ e, mine, now }: { e: CachedEscrow; mine: Set<string>; now: 
 function DraftRow({ d }: { d: Draft }) {
   const label = { negotiating: 'Negotiating', agreed: 'Terms agreed', linked: 'Escrow created', withdrawn: 'Withdrawn' }[d.status];
   return (
-    <Link href={`/orders/${d.id}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-slate-200 hover:bg-slate-50">
+    <Link href={`/orders/${d.id}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-line hover:bg-surface-2">
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Badge>{d.role === 'buyer' ? 'Buying' : 'Selling'}</Badge>
           <Badge className={d.status === 'agreed' ? 'bg-brand-100 text-brand-800' : undefined}>{label}</Badge>
         </div>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           with <span className="font-mono">{shortAddress(d.role === 'buyer' ? d.sellerAddress : d.buyerAddress)}</span> · revision {d.currentRevision}
         </p>
       </div>
@@ -106,7 +106,7 @@ function Dashboard() {
         )}
       </Card>
 
-      <Card title="Open escrows" actions={escrows.data?.[0]?.snapshotAt && <span className="text-xs text-slate-500">list updated {relative(Math.floor(new Date(escrows.data[0].snapshotAt).getTime() / 1000), now)}</span>}>
+      <Card title="Open escrows" actions={escrows.data?.[0]?.snapshotAt && <span className="text-xs text-muted">list updated {relative(Math.floor(new Date(escrows.data[0].snapshotAt).getTime() / 1000), now)}</span>}>
         {escrows.isLoading ? <Spinner /> : escrows.error ? <ErrorText error={escrows.error} /> : open.length === 0 ? <Empty>No open escrows.</Empty> : (
           <div className="space-y-2">
             {open.map((e) => (
@@ -126,7 +126,7 @@ function Dashboard() {
         </Card>
       )}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted">
         Have an escrow address? Open it directly at <span className="font-mono">/escrow/C…</span>. Escrow pages read the contract itself, so they work even when this list is behind.
       </p>
     </div>

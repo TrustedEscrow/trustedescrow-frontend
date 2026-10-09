@@ -179,13 +179,13 @@ export function CreateEscrow({ draft }: { draft: Draft }) {
     <div className="space-y-4">
       <Card title="1. Check the agreed terms">
         <TermsSummary terms={t} feeBps={factory.data?.feeBps} />
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-muted">
           Terms hash <span className="font-mono">{terms.data.termsHash}</span>, computed on this device from revision {terms.data.revision}. This is what goes on-chain.
         </p>
         {!rail && <Alert tone="danger" className="mt-3">This order settles in a token this app does not know ({t.token}). Do not continue.</Alert>}
         {factory.error && <ErrorText error={factory.error} />}
         {factory.data && (
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-muted">
             Arbitrator <span className="font-mono">{factory.data.arbitrator}</span>. Platform fee {factory.data.feeBps / 100}% on release only.
           </p>
         )}
@@ -205,7 +205,7 @@ export function CreateEscrow({ draft }: { draft: Draft }) {
 
       <Card title="3. Create the escrow on-chain">
         <div className="space-y-3">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             Your wallet signs one transaction that deploys a contract for this trade only. Next you deposit {rail ? '' : 'the funds '}from the escrow page.
           </p>
           {r && !r.accountExists && (

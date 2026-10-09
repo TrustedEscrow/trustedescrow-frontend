@@ -67,15 +67,15 @@ function TimelineStep({ state, title, detail }: { state: 'done' | 'current' | 'n
         className={cx(
           'relative z-10 mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-bold',
           state === 'done' && 'bg-brand-600 text-white',
-          state === 'current' && 'bg-white ring-2 ring-violet-500',
-          state === 'next' && 'bg-white ring-1 ring-line',
+          state === 'current' && 'bg-surface ring-2 ring-violet-500',
+          state === 'next' && 'bg-surface ring-1 ring-line',
         )}
       >
         {state === 'done' ? '✓' : state === 'current' ? <span className="h-2 w-2 animate-pulse rounded-full bg-violet-500" /> : null}
       </span>
       <div className="min-w-0">
-        <p className={cx('text-sm font-medium', state === 'next' ? 'text-slate-400' : 'text-ink')}>{title}</p>
-        <p className={cx('truncate text-xs', state === 'next' ? 'text-slate-400' : 'text-slate-500')}>{detail}</p>
+        <p className={cx('text-sm font-medium', state === 'next' ? 'text-faint' : 'text-ink')}>{title}</p>
+        <p className={cx('truncate text-xs', state === 'next' ? 'text-faint' : 'text-muted')}>{detail}</p>
       </div>
     </li>
   );
@@ -85,10 +85,10 @@ function TimelineStep({ state, title, detail }: { state: 'done' | 'current' | 'n
 function ProductMock() {
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-2xl bg-white text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] ring-1 ring-black/5">
+      <div className="pinned-light overflow-hidden rounded-2xl bg-surface text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] ring-1 ring-black/5">
         <div className="flex items-center justify-between border-b border-line px-5 py-3">
-          <p className="text-xs text-slate-500">
-            Escrow <span className="font-mono text-slate-700">CDBD…QMRP</span>
+          <p className="text-xs text-muted">
+            Escrow <span className="font-mono text-muted">CDBD…QMRP</span>
           </p>
           <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-semibold text-violet-800">Delivered, awaiting receipt</span>
         </div>
@@ -96,11 +96,11 @@ function ProductMock() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="font-medium">Refurbished iPhone 15, 128 GB</p>
-              <p className="text-xs text-slate-500">Shipped · GIG Logistics</p>
+              <p className="text-xs text-muted">Shipped · GIG Logistics</p>
             </div>
             <p className="text-right">
               <span className="block font-display text-3xl leading-none">1,500.00</span>
-              <span className="text-xs font-medium text-slate-500">USDC held by contract</span>
+              <span className="text-xs font-medium text-muted">USDC held by contract</span>
             </p>
           </div>
           <ol className="relative before:absolute before:top-2 before:bottom-2 before:left-[9px] before:w-px before:bg-line">
@@ -111,9 +111,9 @@ function ProductMock() {
             <TimelineStep state="next" title="Released to the seller" detail="Only with the buyer’s code or confirmation" />
           </ol>
           <div className="rounded-xl bg-paper p-3 ring-1 ring-line">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Buyer’s delivery code</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted">Buyer’s delivery code</p>
             <p className="font-code mt-1 text-lg text-ink">K7M2-9XQF-••••-••••</p>
-            <p className="mt-1 text-xs text-slate-500">Give it to the seller only once the phone is in your hands.</p>
+            <p className="mt-1 text-xs text-muted">Give it to the seller only once the phone is in your hands.</p>
           </div>
         </div>
       </div>
@@ -187,13 +187,13 @@ const FACTS = [
 
 function Facts() {
   return (
-    <section className="border-b border-line bg-white">
+    <section className="border-b border-line bg-surface">
       <Container className="grid grid-cols-2 gap-x-6 divide-line lg:grid-cols-4 lg:gap-x-0 lg:divide-x">
         {FACTS.map((f) => (
           <div key={f.unit} className="py-8 lg:px-8 lg:first:pl-0">
             <p className="text-4xl font-semibold tracking-tight">{f.value}</p>
             <p className="mt-1 text-sm font-medium">{f.unit}</p>
-            <p className="mt-1 text-sm text-slate-500">{f.note}</p>
+            <p className="mt-1 text-sm text-muted">{f.note}</p>
           </div>
         ))}
       </Container>
@@ -211,7 +211,7 @@ function Problem() {
           <Eyebrow>The problem</Eyebrow>
           <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">Online trade between strangers runs on trust nobody has earned.</h2>
         </div>
-        <div className="space-y-5 text-[17px] leading-relaxed text-slate-600 lg:pt-10">
+        <div className="space-y-5 text-[17px] leading-relaxed text-muted lg:pt-10">
           <p>
             Someone has to go first. If the buyer pays first, they’re trusting a stranger to ship. If the seller ships first, they’re trusting a stranger to pay.
             Either way, one side carries all the risk.
@@ -284,7 +284,7 @@ function StateDiagram() {
     </g>
   );
   return (
-    <div className="overflow-x-auto rounded-2xl bg-white p-6 ring-1 ring-line sm:p-8">
+    <div className="overflow-x-auto rounded-2xl bg-surface p-6 ring-1 ring-line sm:p-8">
       <svg viewBox="0 -4 980 254" className="w-full min-w-[720px]" role="img" aria-label="Escrow state machine">
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -307,20 +307,20 @@ function StateDiagram() {
         {node(280, 176, 'Refunded', 'refund')}
         {node(540, 176, 'Disputed', 'warn')}
       </svg>
-      <p className="mt-4 text-xs text-slate-500">Every arrow into Released requires the buyer’s code, the buyer’s confirmation, or an arbitrator’s ruling.</p>
+      <p className="mt-4 text-xs text-muted">Every arrow into Released requires the buyer’s code, the buyer’s confirmation, or an arbitrator’s ruling.</p>
     </div>
   );
 }
 
 function HowItWorks() {
   return (
-    <section id="how" className="scroll-mt-8 border-t border-line bg-white py-24">
+    <section id="how" className="scroll-mt-8 border-t border-line bg-surface py-24">
       <Container>
         <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="lg:sticky lg:top-10 lg:self-start">
             <Eyebrow>How it works</Eyebrow>
             <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">Two sides speak before anyone is paid.</h2>
-            <p className="mt-5 max-w-sm text-slate-600">
+            <p className="mt-5 max-w-sm text-muted">
               The seller’s proof alone is never enough, and neither is a buyer’s silence. Release needs evidence from both — or a ruling.
             </p>
           </div>
@@ -330,7 +330,7 @@ function HowItWorks() {
                 <span className="font-display text-4xl leading-none text-brand-600">{s.n}</span>
                 <div>
                   <h3 className="text-lg font-semibold">{s.title}</h3>
-                  <p className="mt-2 leading-relaxed text-slate-600">{s.body}</p>
+                  <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
                 </div>
               </li>
             ))}
@@ -345,7 +345,7 @@ function HowItWorks() {
               {EXCEPTIONS.map((e) => (
                 <div key={e.when} className="border-l-2 border-brand-200 pl-4">
                   <dt className="font-medium">{e.when}</dt>
-                  <dd className="mt-0.5 text-sm text-slate-600">{e.then}</dd>
+                  <dd className="mt-0.5 text-sm text-muted">{e.then}</dd>
                 </div>
               ))}
             </dl>
@@ -373,12 +373,12 @@ function Comparison() {
       <Container>
         <Eyebrow>Compared</Eyebrow>
         <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight sm:text-5xl">Custodial escrow asks you to trust a company. This asks you to read a contract.</h2>
-        <div className="mt-12 overflow-x-auto rounded-2xl bg-white ring-1 ring-line">
+        <div className="mt-12 overflow-x-auto rounded-2xl bg-surface ring-1 ring-line">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="border-b border-line">
-                <th className="w-1/4 px-6 py-4 font-medium text-slate-500" />
-                <th className="px-6 py-4 font-medium text-slate-500">Typical custodial escrow</th>
+                <th className="w-1/4 px-6 py-4 font-medium text-muted" />
+                <th className="px-6 py-4 font-medium text-muted">Typical custodial escrow</th>
                 <th className="bg-brand-50/60 px-6 py-4 font-semibold text-brand-800">
                   <span className="inline-flex items-center gap-2">
                     <LogoMark className="h-5 w-5" /> TrustEscrow
@@ -392,7 +392,7 @@ function Comparison() {
                   <th scope="row" className="px-6 py-4 font-medium">
                     {label}
                   </th>
-                  <td className="px-6 py-4 text-slate-500">{them}</td>
+                  <td className="px-6 py-4 text-muted">{them}</td>
                   <td className="bg-brand-50/60 px-6 py-4 text-ink">{us}</td>
                 </tr>
               ))}
@@ -498,10 +498,10 @@ const REPOS = [
 
 function Box({ title, sub, items, accent }: { title: string; sub: string; items: string[]; accent?: boolean }) {
   return (
-    <div className={cx('rounded-2xl p-5 ring-1', accent ? 'bg-brand-50 ring-brand-200' : 'bg-white ring-line')}>
+    <div className={cx('rounded-2xl p-5 ring-1', accent ? 'pinned-light bg-brand-50 ring-brand-200' : 'bg-surface ring-line')}>
       <p className="font-semibold">{title}</p>
-      <p className="text-sm text-slate-500">{sub}</p>
-      <ul className="mt-3 space-y-1 font-mono text-xs text-slate-600">
+      <p className="text-sm text-muted">{sub}</p>
+      <ul className="mt-3 space-y-1 font-mono text-xs text-muted">
         {items.map((i) => (
           <li key={i}>{i}</li>
         ))}
@@ -514,8 +514,8 @@ function Box({ title, sub, items, accent }: { title: string; sub: string; items:
 function Arrow({ label, toward }: { label: string; toward: 'right' | 'left' }) {
   return (
     <div className="flex flex-col items-center justify-center gap-1 py-2 text-center lg:max-w-28 lg:py-0">
-      <span className="text-xs text-slate-500">{label}</span>
-      <span aria-hidden className="text-slate-400">
+      <span className="text-xs text-muted">{label}</span>
+      <span aria-hidden className="text-faint">
         <span className="lg:hidden">{toward === 'right' ? '↓' : '↑'}</span>
         <span className="hidden lg:inline">{toward === 'right' ? '→' : '←'}</span>
       </span>
@@ -529,7 +529,7 @@ function Architecture() {
       <Container>
         <Eyebrow>Architecture</Eyebrow>
         <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight sm:text-5xl">The contract is the product. Everything else is convenience.</h2>
-        <p className="mt-5 max-w-2xl text-slate-600">
+        <p className="mt-5 max-w-2xl text-muted">
           The web app signs transactions straight from the user’s wallet. The backend helps people negotiate and keeps them informed, but if it disappeared, every
           trade could still be funded, completed, disputed or timed out from a command line.
         </p>
@@ -544,13 +544,13 @@ function Architecture() {
 
         <div className="mt-16 grid gap-px overflow-hidden rounded-2xl bg-line ring-1 ring-line sm:grid-cols-2">
           {REPOS.map((r) => (
-            <a key={r.name} href={`${GITHUB}/${r.name}`} target="_blank" rel="noreferrer" className="group bg-white p-6 hover:bg-paper">
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{r.label}</p>
+            <a key={r.name} href={`${GITHUB}/${r.name}`} target="_blank" rel="noreferrer" className="group bg-surface p-6 hover:bg-paper">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted">{r.label}</p>
               <p className="mt-2 inline-flex items-center gap-2 font-mono text-sm font-semibold text-ink">
-                <GitHubIcon className="text-slate-400 group-hover:text-ink" />
+                <GitHubIcon className="text-faint group-hover:text-ink" />
                 {r.name}
               </p>
-              <p className="mt-2 text-sm text-slate-600">{r.desc}</p>
+              <p className="mt-2 text-sm text-muted">{r.desc}</p>
             </a>
           ))}
         </div>
@@ -612,16 +612,16 @@ function Footer() {
     },
   ];
   return (
-    <footer className="border-t border-line bg-white">
+    <footer className="border-t border-line bg-surface">
       <Container className="grid gap-10 py-14 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Wordmark />
-          <p className="mt-4 max-w-xs text-sm text-slate-500">Non-custodial escrow for trade between strangers, on Stellar.</p>
+          <p className="mt-4 max-w-xs text-sm text-muted">Non-custodial escrow for trade between strangers, on Stellar.</p>
         </div>
         {cols.map((c) => (
           <div key={c.title}>
             <p className="text-sm font-semibold">{c.title}</p>
-            <ul className="mt-3 space-y-2 text-sm text-slate-500">
+            <ul className="mt-3 space-y-2 text-sm text-muted">
               {c.links.map((l) => (
                 <li key={l.label}>
                   {l.external ? (
@@ -639,7 +639,7 @@ function Footer() {
           </div>
         ))}
       </Container>
-      <Container className="flex flex-col gap-2 border-t border-line py-6 text-xs text-slate-500 sm:flex-row sm:justify-between">
+      <Container className="flex flex-col gap-2 border-t border-line py-6 text-xs text-muted sm:flex-row sm:justify-between">
         <p>Contracts are unaudited — testnet and demonstration use only.</p>
         <p>Contracts Apache-2.0 · App and backend MIT</p>
       </Container>

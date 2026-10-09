@@ -13,10 +13,10 @@ const pct = (x: number | null) => (x === null ? '—' : `${(x * 100).toFixed(1)}
 
 function Stat({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
   return (
-    <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
+    <div className="rounded-xl bg-surface p-4 ring-1 ring-line">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
       <p className="text-2xl font-bold">{value}</p>
-      {hint && <p className="text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="text-xs text-muted">{hint}</p>}
     </div>
   );
 }
@@ -48,10 +48,10 @@ function Console() {
               const left = deadline - now;
               return (
                 <li key={d.contractId}>
-                  <Link href={`/arbitrator/${d.contractId}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-slate-200 hover:bg-slate-50">
+                  <Link href={`/arbitrator/${d.contractId}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-line hover:bg-surface-2">
                     <div className="space-y-1">
                       <p className="font-mono text-sm">{shortAddress(d.contractId, 6)}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted">
                         {d.dispute?.openedBy === 'ReceiptTimeout' ? 'Buyer silent after proof' : `Opened by ${d.dispute?.openedBy?.toLowerCase()}`} · proof{' '}
                         {d.proof ? d.proof.kind : 'none'}
                       </p>

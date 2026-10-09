@@ -38,7 +38,7 @@ function ContentCheck({ expected, uri }: { expected: string; uri: string }) {
   const url = gatewayUrl(uri);
   const show = (hash: string) => setResult(hash === expected ? 'match' : `mismatch (${hash.slice(0, 12)}…)`);
   return (
-    <div className="space-y-2 rounded-lg bg-slate-50 p-3">
+    <div className="space-y-2 rounded-lg bg-surface-2 p-3">
       <p className="text-sm font-medium">Verify the delivered content</p>
       {url && (
         <Button
@@ -86,7 +86,7 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
   // seller, who is the side that usually lacks a trustline.
   const payee = usePayoutGate(e.token, payeeOf(e, choice ?? 'Release'), choice === 'Refund' ? 'buyer' : 'seller');
 
-  if (e.state !== 'Disputed') return <p className="text-sm text-slate-600">This escrow is no longer in dispute.</p>;
+  if (e.state !== 'Disputed') return <p className="text-sm text-muted">This escrow is no longer in dispute.</p>;
   if (now >= deadline) return <Alert tone="warning">The arbitration deadline has passed. You can no longer rule; anyone can refund the buyer.</Alert>;
   if (walletAddress !== e.arbitrator) {
     return (
@@ -140,26 +140,26 @@ function ResolvePanel({ e, onDone }: { e: EscrowSnapshot; onDone: () => void }) 
 
           <Modal open={showConfirm} title="Confirm Irrevocable Ruling" onClose={() => setShowConfirm(false)}>
             <div className="space-y-4">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted">
                 Please review this dispute ruling carefully. Once signed, this decision cannot be undone and transfers funds immediately on-chain.
               </p>
-              <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
+              <div className="space-y-2 rounded-lg bg-surface-2 p-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Ruling Decision:</span>
-                  <span className="font-semibold text-slate-900">{choice === 'Release' ? 'Release funds to seller' : 'Refund funds to buyer'}</span>
+                  <span className="text-muted">Ruling Decision:</span>
+                  <span className="font-semibold text-ink">{choice === 'Release' ? 'Release funds to seller' : 'Refund funds to buyer'}</span>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <span className="text-slate-500">Recipient Account:</span>
+                  <span className="text-muted">Recipient Account:</span>
                   <span className="truncate font-mono text-xs">{choice === 'Release' ? e.seller : e.buyer}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Payout to Party:</span>
-                  <span className="font-medium text-slate-900">
+                  <span className="text-muted">Payout to Party:</span>
+                  <span className="font-medium text-ink">
                     {choice === 'Release' ? <Amount token={e.token} units={payout} /> : <Amount token={e.token} units={e.amount} />}
                   </span>
                 </div>
                 {choice === 'Release' && e.feeBps > 0 && (
-                  <div className="flex justify-between text-xs text-slate-500">
+                  <div className="flex justify-between text-xs text-muted">
                     <span>Platform Fee ({(e.feeBps / 100).toFixed(2)}%):</span>
                     <span><Amount token={e.token} units={e.amount - payout} /></span>
                   </div>
@@ -221,7 +221,7 @@ function CaseFile({ id }: { id: string }) {
                 <StateBadge state={e.state} />
                 <Amount token={e.token} units={e.amount} className="block text-2xl font-bold" />
                 {e.dispute && (
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-muted">
                     {e.dispute.openedBy === 'ReceiptTimeout' ? 'The buyer gave no receipt and no objection before the deadline.' : `Opened by the ${e.dispute.openedBy.toLowerCase()}`}{' '}
                     from {e.dispute.fromState}, {formatDate(e.dispute.openedAt)}.
                   </p>
@@ -263,12 +263,12 @@ function CaseFile({ id }: { id: string }) {
                 {e.proof.kind === 'Attestation' && <Alert tone="info">A seller statement: the weakest tier. Compare its hash with the statement in the evidence below.</Alert>}
               </div>
             ) : (
-              <p className="text-sm text-slate-600">The seller never submitted proof.</p>
+              <p className="text-sm text-muted">The seller never submitted proof.</p>
             )}
           </Card>
 
           <Card title="Seller says they hold the buyer's code?">
-            <p className="mb-2 text-sm text-slate-600">
+            <p className="mb-2 text-sm text-muted">
               Type it here. It is hashed on this device and compared with the escrow&apos;s committed hash. Nothing is sent to the server. A match is strong evidence the buyer handed it
               over, but a coerced handover looks the same.
             </p>

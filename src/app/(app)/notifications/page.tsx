@@ -39,8 +39,8 @@ function Notifications() {
                       {!n.read_at && <span className="mr-2 inline-block h-2 w-2 rounded-full bg-brand-600" />}
                       {n.title}
                     </p>
-                    <p className="text-sm font-normal text-slate-600">{n.body}</p>
-                    <p className="text-xs font-normal text-slate-400">{formatDate(n.send_at)}</p>
+                    <p className="text-sm font-normal text-muted">{n.body}</p>
+                    <p className="text-xs font-normal text-faint">{formatDate(n.send_at)}</p>
                   </div>
                   <div className="flex gap-2">
                     {href && (
@@ -55,7 +55,7 @@ function Notifications() {
                       </Link>
                     )}
                     {!n.read_at && (
-                      <button className="text-sm text-slate-500" onClick={() => void api.readNotification(n.id).then(refresh)}>
+                      <button className="text-sm text-muted" onClick={() => void api.readNotification(n.id).then(refresh)}>
                         Mark read
                       </button>
                     )}

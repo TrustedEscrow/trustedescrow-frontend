@@ -59,7 +59,7 @@ export function ProtectionChooser({ onChoose, busy }: { onChoose: (secret: Vault
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-muted">
         Your delivery code is created on this device and stored encrypted. TrustEscrow cannot read it. You&apos;ll reveal it only when the item is in your hands.
       </p>
       <div className="flex gap-2">
@@ -75,7 +75,7 @@ export function ProtectionChooser({ onChoose, busy }: { onChoose: (secret: Vault
 
       {mode === 'passkey' ? (
         <div className="space-y-2">
-          <p className="text-sm text-slate-600">Recommended. Your phone or computer unlocks the code with your fingerprint, face or PIN. Synced passkeys also work on your other devices.</p>
+          <p className="text-sm text-muted">Recommended. Your phone or computer unlocks the code with your fingerprint, face or PIN. Synced passkeys also work on your other devices.</p>
           {existing.length > 0 && (
             <Button busy={working || busy} onClick={() => void go(() => onChoose({ kind: 'passkey', credentialId: existing[existing.length - 1]!, rpId: config.webauthnRpId }))}>
               Use my vault passkey
@@ -135,7 +135,7 @@ function EnvelopeUnlock({ envelope, onOpen }: { envelope: VaultEnvelope; onOpen:
   };
   const rawId = passkeyRawId(envelope.credentialId);
   return (
-    <div className="space-y-2 rounded-lg p-3 ring-1 ring-slate-200">
+    <div className="space-y-2 rounded-lg p-3 ring-1 ring-line">
       {envelope.kdf.name === 'pbkdf2-sha256' ? (
         <>
           <Field label="Vault password">
@@ -150,7 +150,7 @@ function EnvelopeUnlock({ envelope, onOpen }: { envelope: VaultEnvelope; onOpen:
           Unlock with passkey
         </Button>
       ) : (
-        <p className="text-sm text-slate-500">This copy of the code uses a method this browser can&apos;t open.</p>
+        <p className="text-sm text-muted">This copy of the code uses a method this browser can&apos;t open.</p>
       )}
       <ErrorText error={error} />
     </div>
@@ -219,7 +219,7 @@ export function RevealCode({ draftId, releaseCodeHash }: { draftId: string; rele
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-slate-600">Unlock your code. It is decrypted on this device and never sent anywhere.</p>
+      <p className="text-sm text-muted">Unlock your code. It is decrypted on this device and never sent anywhere.</p>
       {vault.envelopes.map((env) => (
         <EnvelopeUnlock
           key={env.credentialId}

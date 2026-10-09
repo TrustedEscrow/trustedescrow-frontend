@@ -23,6 +23,17 @@
   --color-line: #e3e1d8;
   --color-night: #08140f;
   --color-night-2: #0e2019;
+
+  /* Surfaces and secondary text, as tokens that flip with the theme.
+     Components must reference these and never a fixed palette step: a card or
+     input that forces `bg-white` while its text inherits `--color-ink` turns
+     into white-on-white the moment the theme goes dark, which is exactly the
+     bug these replaced. Anything with BOTH its background and its text pinned
+     (the Alert tones, the Badge default) is self-consistent and stays put. */
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f0ec;
+  --color-muted: #52606b;
+  --color-faint: #68727c;
 }
 
 :root {
@@ -34,6 +45,25 @@ html.dark {
   --color-paper: #09130f;
   --color-ink: #f0fdf4;
   --color-line: #1c3329;
+  --color-surface: #0e2019;
+  --color-surface-2: #0a1813;
+  --color-muted: #a3b8ac;
+  --color-faint: #798e82;
+}
+
+/* Some things are pictures of the light app rather than part of the current
+   theme — the hero illustration sits on a permanently dark band and has to keep
+   looking like a light screenshot. Pinning the tokens on a wrapper fixes the
+   whole subtree at once, instead of hard-coding hex values into every child. */
+.pinned-light {
+  color-scheme: light;
+  --color-ink: #0d1b16;
+  --color-paper: #f7f6f2;
+  --color-line: #e3e1d8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f0ec;
+  --color-muted: #52606b;
+  --color-faint: #68727c;
 }
 
 body {

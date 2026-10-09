@@ -11,7 +11,7 @@ export function SignInPanel() {
   const [error, setError] = useState<unknown>(null);
   return (
     <Card title="Sign in with your Stellar wallet">
-      <div className="space-y-3 text-sm text-slate-600">
+      <div className="space-y-3 text-sm text-muted">
         <p>TrustEscrow uses Freighter. Your wallet signs a message to prove you own the account. The message authorises no transaction.</p>
         <ErrorText error={error} />
         <Button
@@ -31,7 +31,7 @@ export function SignInPanel() {
           Connect Freighter and sign in
         </Button>
         <div className="pt-1 text-center">
-          <Link href="/escrow" className="text-xs text-slate-500 hover:text-brand-700 underline">
+          <Link href="/escrow" className="text-xs text-muted hover:text-brand-700 underline">
             Or open an on-chain escrow without signing in →
           </Link>
         </div>
@@ -76,7 +76,7 @@ function SignInScreen() {
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-4xl">Sign in</h1>
-          <p className="mt-1 text-sm text-slate-600">Propose orders, fund escrows and release payment from one place.</p>
+          <p className="mt-1 text-sm text-muted">Propose orders, fund escrows and release payment from one place.</p>
         </div>
         <SignInPanel />
       </div>
@@ -140,7 +140,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const { status } = useAuth();
   if (status === 'loading') {
     return (
-      <p className="flex items-center gap-2 text-sm text-slate-500">
+      <p className="flex items-center gap-2 text-sm text-muted">
         <Spinner /> Loading
       </p>
     );

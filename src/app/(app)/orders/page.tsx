@@ -12,7 +12,7 @@ type StatusFilter = 'all' | 'negotiating' | 'agreed' | 'linked' | 'withdrawn';
 function DraftRow({ d }: { d: Draft }) {
   const label = { negotiating: 'Negotiating', agreed: 'Terms agreed', linked: 'Escrow created', withdrawn: 'Withdrawn' }[d.status];
   return (
-    <Link href={`/orders/${d.id}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-slate-200 hover:bg-slate-50">
+    <Link href={`/orders/${d.id}`} className="flex flex-wrap items-center justify-between gap-2 rounded-lg p-3 ring-1 ring-line hover:bg-surface-2">
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Badge>{d.role === 'buyer' ? 'Buying' : 'Selling'}</Badge>
@@ -20,7 +20,7 @@ function DraftRow({ d }: { d: Draft }) {
             {label}
           </Badge>
         </div>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           with <span className="font-mono">{shortAddress(d.role === 'buyer' ? d.sellerAddress : d.buyerAddress)}</span> · revision {d.currentRevision}
         </p>
       </div>
@@ -61,7 +61,7 @@ function OrdersContent() {
         </Link>
       </div>
 
-      <div className="flex flex-wrap border-b border-slate-200 text-sm font-medium text-slate-500">
+      <div className="flex flex-wrap border-b border-line text-sm font-medium text-muted">
         {tabs.map((tab) => {
           const active = filter === tab.id;
           return (
@@ -69,10 +69,10 @@ function OrdersContent() {
               key={tab.id}
               onClick={() => setFilter(tab.id)}
               className={`mr-4 border-b-2 pb-2 transition-colors ${
-                active ? 'border-brand-600 font-semibold text-brand-600' : 'border-transparent hover:border-slate-300 hover:text-slate-700'
+                active ? 'border-brand-600 font-semibold text-brand-600' : 'border-transparent hover:border-line hover:text-muted'
               }`}
             >
-              {tab.label} <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{counts[tab.id]}</span>
+              {tab.label} <span className="ml-1 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">{counts[tab.id]}</span>
             </button>
           );
         })}

@@ -118,7 +118,7 @@ function Order({ id }: { id: string }) {
           {current && (
             <Card
               title="Agreed terms"
-              actions={<span className="text-xs text-slate-500">{formatDate(current.createdAt)}</span>}
+              actions={<span className="text-xs text-muted">{formatDate(current.createdAt)}</span>}
             >
               <TermsSummary terms={current.terms} />
             </Card>
@@ -131,15 +131,15 @@ function Order({ id }: { id: string }) {
           title={`Revision ${current.revision}${current.proposedBy === me?.address ? ' (your proposal)' : ''}`}
           actions={
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">{formatDate(current.createdAt)}</span>
+              <span className="text-xs text-muted">{formatDate(current.createdAt)}</span>
             </div>
           }
         >
           <TermsSummary terms={current.terms} />
-          {current.note && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm italic text-slate-700">“{current.note}”</p>}
+          {current.note && <p className="mt-3 rounded-lg bg-surface-2 p-3 text-sm italic text-muted">“{current.note}”</p>}
           {draft.status === 'negotiating' && (
             <div className="mt-4 space-y-3">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted">
                 {iAccepted ? 'You accepted this revision.' : 'You have not accepted this revision.'}{' '}
                 {theyAccepted ? 'The other party accepted it.' : 'Waiting for the other party.'}
               </p>
@@ -196,7 +196,7 @@ function Order({ id }: { id: string }) {
                     Revision {r.revision} by {r.proposedBy === me?.address ? 'you' : 'the other party'}
                     {r.acceptedBy.length === 2 && <Badge className="ml-2 bg-brand-100 text-brand-800">agreed</Badge>}
                   </span>
-                  <span className="text-slate-500">{formatDate(r.createdAt)}</span>
+                  <span className="text-muted">{formatDate(r.createdAt)}</span>
                 </li>
               ))}
           </ol>

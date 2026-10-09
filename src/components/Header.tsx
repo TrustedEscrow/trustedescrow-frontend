@@ -61,7 +61,7 @@ export function Header() {
       ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
           <Wordmark />
@@ -76,7 +76,7 @@ export function Header() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? 'page' : undefined}
-                className={cx('rounded-md px-3 py-1.5 text-sm font-medium', active ? 'bg-brand-50 text-brand-800' : 'text-slate-600 hover:text-ink')}
+                className={cx('rounded-md px-3 py-1.5 text-sm font-medium', active ? 'bg-brand-50 text-brand-800' : 'text-muted hover:text-ink')}
               >
                 {l.label}
               </Link>
@@ -88,7 +88,7 @@ export function Header() {
           <ThemeSwitcher />
           {signedIn && me && (
             <div className="hidden text-right text-xs sm:block">
-              <p className="font-mono text-slate-700">{me.displayName ?? shortAddress(me.address)}</p>
+              <p className="font-mono text-muted">{me.displayName ?? shortAddress(me.address)}</p>
               {walletAddress && walletAddress !== me.address && <p className="text-amber-700">Wallet: {shortAddress(walletAddress)}</p>}
             </div>
           )}
@@ -100,7 +100,7 @@ export function Header() {
           {signedIn && (
             <button
               ref={menuButtonRef}
-              className="rounded-md p-2 text-slate-700 md:hidden"
+              className="rounded-md p-2 text-muted md:hidden"
               aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={open}
               aria-controls="mobile-navigation-menu"
@@ -117,7 +117,7 @@ export function Header() {
           id="mobile-navigation-menu"
           ref={mobileNavRef}
           aria-label="Mobile navigation"
-          className="border-t border-slate-200 px-4 py-2 md:hidden"
+          className="border-t border-line px-4 py-2 md:hidden"
         >
           {links.map((l) => {
             const active = pathname.startsWith(l.href);
@@ -127,13 +127,13 @@ export function Header() {
                 href={l.href}
                 aria-current={active ? 'page' : undefined}
                 onClick={() => setOpen(false)}
-                className={cx('block rounded-md px-2 py-2 text-sm font-medium', active ? 'bg-brand-50 text-brand-800' : 'text-slate-700')}
+                className={cx('block rounded-md px-2 py-2 text-sm font-medium', active ? 'bg-brand-50 text-brand-800' : 'text-muted')}
               >
                 {l.label}
               </Link>
             );
           })}
-          <button className="block w-full rounded-md px-2 py-2 text-left text-sm font-medium text-slate-700" onClick={() => void signOut()}>
+          <button className="block w-full rounded-md px-2 py-2 text-left text-sm font-medium text-muted" onClick={() => void signOut()}>
             Sign out
           </button>
         </nav>

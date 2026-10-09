@@ -50,7 +50,7 @@ function useRunCall(ctx: Ctx) {
 
 function Section({ title, children, tone }: { title: string; children: ReactNode; tone?: 'danger' }) {
   return (
-    <div className={tone === 'danger' ? 'space-y-3 rounded-lg p-4 ring-1 ring-red-200' : 'space-y-3 rounded-lg p-4 ring-1 ring-slate-200'}>
+    <div className={tone === 'danger' ? 'space-y-3 rounded-lg p-4 ring-1 ring-red-200' : 'space-y-3 rounded-lg p-4 ring-1 ring-line'}>
       <h3 className="font-semibold">{title}</h3>
       {children}
     </div>
@@ -59,8 +59,8 @@ function Section({ title, children, tone }: { title: string; children: ReactNode
 
 function Secondary({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <details className="rounded-lg ring-1 ring-slate-200 [&_summary]:cursor-pointer">
-      <summary className="p-3 text-sm font-medium text-slate-700">{title}</summary>
+    <details className="rounded-lg ring-1 ring-line [&_summary]:cursor-pointer">
+      <summary className="p-3 text-sm font-medium text-muted">{title}</summary>
       <div className="space-y-3 px-4 pb-4">{children}</div>
     </details>
   );
@@ -69,7 +69,7 @@ function Secondary({ title, children }: { title: string; children: ReactNode }) 
 function Check({ ok, children }: { ok: boolean | null; children: ReactNode }) {
   return (
     <li className="flex items-start gap-2 text-sm">
-      <span className={ok === null ? 'text-slate-400' : ok ? 'text-emerald-700' : 'text-red-700'}>{ok === null ? '…' : ok ? '✓' : '✗'}</span>
+      <span className={ok === null ? 'text-faint' : ok ? 'text-emerald-700' : 'text-red-700'}>{ok === null ? '…' : ok ? '✓' : '✗'}</span>
       <span>{children}</span>
     </li>
   );
@@ -96,7 +96,7 @@ function FundPanel(ctx: Ctx) {
 
   return (
     <Section title={`Deposit ${formatAmount(e.amount, t.decimals, t.symbol)}`}>
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-muted">
         The contract holds the funds. It pays the seller only after their proof of delivery and your receipt, or an arbitrator&apos;s ruling. Deposit before{' '}
         {formatDate(e.fundingDeadline)}.
       </p>
@@ -198,7 +198,7 @@ function ProofForm({ ctx, withCode, warning }: { ctx: Ctx; withCode: boolean; wa
           </Select>
         </Field>
       )}
-      <p className="text-xs text-slate-500">{PROOF_KIND_HELP[kind].hint}</p>
+      <p className="text-xs text-muted">{PROOF_KIND_HELP[kind].hint}</p>
       {kind !== 'Attestation' || uri ? (
         <Field label={kind === 'Tracking' ? 'Tracking link' : kind === 'Content' ? 'Link to the delivered file' : 'Link (optional)'} error={uri ? uriErr : undefined}>
           <Input value={uri} onChange={(ev) => setUri(ev.target.value)} placeholder="https://…" spellCheck={false} />
@@ -242,7 +242,7 @@ function ReleaseWithCode(ctx: Ctx) {
   const seller = usePayoutGate(ctx.e.token, ctx.e.seller, 'seller');
   return (
     <Section title="Release with the buyer's code">
-      <p className="text-sm text-slate-600">When the buyer has the item and has checked it, they give you their 16-character code. Enter it to release the payment.</p>
+      <p className="text-sm text-muted">When the buyer has the item and has checked it, they give you their 16-character code. Enter it to release the payment.</p>
       <CodeInput expectedHash={ctx.e.releaseCodeHash} onValid={onCode} />
       {seller.gate}
       <Button disabled={!code || seller.blocked} onClick={() => void run('Release payment', escrowCalls.releaseWithCode(code!))}>
@@ -259,7 +259,7 @@ function ConfirmReceipt(ctx: Ctx) {
   const seller = usePayoutGate(ctx.e.token, ctx.e.seller, 'seller');
   return (
     <div className="space-y-3">
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-muted">
         No code needed. Your wallet signature is your receipt. This pays the seller <Amount token={ctx.e.token} units={payout} className="font-semibold" />.
       </p>
       <label className="flex items-start gap-2 text-sm">
@@ -292,7 +292,7 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
   const a = (id: AvailableAction['id']) => has(actions, id);
 
   if (actions.length === 0) {
-    return <p className="text-sm text-slate-600">{ctx.e.state === 'Created' || ctx.e.state === 'Funded' || ctx.e.state === 'Delivered' || ctx.e.state === 'Disputed' ? 'Nothing for you to do right now.' : 'This escrow is finished.'}</p>;
+    return <p className="text-sm text-muted">{ctx.e.state === 'Created' || ctx.e.state === 'Funded' || ctx.e.state === 'Delivered' || ctx.e.state === 'Disputed' ? 'Nothing for you to do right now.' : 'This escrow is finished.'}</p>;
   }
 
   return (
@@ -303,27 +303,27 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
 
       {a('reveal_code') && (
         <Section title="When the item is in your hands">
-          <p className="text-sm text-slate-600">Check the item. If it&apos;s right, give the seller your delivery code, or confirm receipt with your wallet.</p>
+          <p className="text-sm text-muted">Check the item. If it&apos;s right, give the seller your delivery code, or confirm receipt with your wallet.</p>
           {ctx.draftId && ctx.signedIn ? (
             <RevealCode draftId={ctx.draftId} releaseCodeHash={ctx.e.releaseCodeHash} />
           ) : (
             <Alert tone="info">Sign in to reveal your code. Without it you can still confirm receipt once the seller has submitted proof.</Alert>
           )}
           {a('confirm') && <ConfirmReceipt {...ctx} />}
-          {ctx.e.state === 'Funded' && <p className="text-xs text-slate-500">Confirming receipt becomes possible once the seller submits proof of delivery.</p>}
+          {ctx.e.state === 'Funded' && <p className="text-xs text-muted">Confirming receipt becomes possible once the seller submits proof of delivery.</p>}
         </Section>
       )}
 
       {a('submit_proof_with_code') && (
         <Section title="In-person handover" tone={a('submit_proof_with_code')?.warning ? 'danger' : undefined}>
-          <p className="text-sm text-slate-600">Meet, let the buyer inspect the item, and get their code. Your proof and their code land in one transaction and you are paid in seconds.</p>
+          <p className="text-sm text-muted">Meet, let the buyer inspect the item, and get their code. Your proof and their code land in one transaction and you are paid in seconds.</p>
           <ProofForm ctx={ctx} withCode warning={a('submit_proof_with_code')?.warning} />
         </Section>
       )}
 
       {a('submit_proof') && (
         <Section title="Shipped it? Submit proof of delivery">
-          <p className="text-sm text-slate-600">Proof starts the buyer&apos;s receipt window. It does not pay you by itself: you are paid when the buyer gives receipt, or the arbitrator rules.</p>
+          <p className="text-sm text-muted">Proof starts the buyer&apos;s receipt window. It does not pay you by itself: you are paid when the buyer gives receipt, or the arbitrator rules.</p>
           <ProofForm ctx={ctx} withCode={false} />
         </Section>
       )}
@@ -332,21 +332,21 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
 
       {a('escalate') && (
         <Section title="The buyer gave no receipt in time">
-          <p className="text-sm text-slate-600">Anyone can now hand this escrow to the arbitrator. Nobody is paid by waiting.</p>
+          <p className="text-sm text-muted">Anyone can now hand this escrow to the arbitrator. Nobody is paid by waiting.</p>
           <Simple ctx={ctx} label="Escalate to the arbitrator" title="Escalate to arbitration" call={escrowCalls.escalate()} variant="primary" />
         </Section>
       )}
 
       {a('refund_after_delivery_timeout') && (
         <Section title="The seller did not deliver in time">
-          <p className="text-sm text-slate-600">Anyone can now return the deposit to the buyer.</p>
+          <p className="text-sm text-muted">Anyone can now return the deposit to the buyer.</p>
           <Simple ctx={ctx} label="Refund the buyer" title="Refund after delivery deadline" call={escrowCalls.refundAfterDeliveryTimeout()} variant="primary" />
         </Section>
       )}
 
       {a('refund_after_arbitration_timeout') && (
         <Section title="The arbitrator did not rule in time">
-          <p className="text-sm text-slate-600">Anyone can now refund the buyer.</p>
+          <p className="text-sm text-muted">Anyone can now refund the buyer.</p>
           <Simple ctx={ctx} label="Refund the buyer" title="Refund after arbitration deadline" call={escrowCalls.refundAfterArbitrationTimeout()} variant="primary" />
         </Section>
       )}
@@ -359,7 +359,7 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
 
       {a('dispute') && (
         <Secondary title="Something went wrong? Open a dispute">
-          <p className="text-sm text-slate-600">The arbitrator will review the proof, your messages and any evidence, and either release or refund. Automatic release by code stops once a dispute is open.</p>
+          <p className="text-sm text-muted">The arbitrator will review the proof, your messages and any evidence, and either release or refund. Automatic release by code stops once a dispute is open.</p>
           <Simple
             ctx={ctx}
             label="Open a dispute"
@@ -373,14 +373,14 @@ export function EscrowActions({ viewer, ...ctx }: Ctx & { viewer: Viewer }) {
 
       {a('seller_refund') && (
         <Secondary title="Can't deliver? Refund the buyer">
-          <p className="text-sm text-slate-600">Returns the full deposit to the buyer now. This cannot be undone.</p>
+          <p className="text-sm text-muted">Returns the full deposit to the buyer now. This cannot be undone.</p>
           <Simple ctx={ctx} label="Refund the buyer" title="Seller refund" call={escrowCalls.sellerRefund()} variant="danger" confirmText="Refund the full deposit to the buyer? This cannot be undone." />
         </Secondary>
       )}
 
       {a('cancel') && (
         <Secondary title="Cancel this escrow">
-          <p className="text-sm text-slate-600">Nothing has been deposited. Cancelling closes it for good.</p>
+          <p className="text-sm text-muted">Nothing has been deposited. Cancelling closes it for good.</p>
           <Simple ctx={ctx} label="Cancel escrow" title="Cancel escrow" call={escrowCalls.cancel(walletAddress ?? '')} variant="danger" confirmText="Cancel this escrow?" />
         </Secondary>
       )}
@@ -401,7 +401,7 @@ function BumpTtl({ ctx }: { ctx: Ctx }) {
   return (
     <Secondary title="Contract Storage & TTL Maintenance">
       <div className="space-y-3">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           Soroban smart contract storage entries require periodic maintenance to prevent archival. Any user can trigger a bump to restore and extend contract TTL.
         </p>
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -429,7 +429,7 @@ function ExtendDeadline({ ctx, kind }: { ctx: Ctx; kind: 'delivery' | 'receipt' 
   return (
     <Secondary title={`Extend ${kind} deadline`}>
       <div className="space-y-3">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           Add additional time to the {kind} window if more time is needed before timeouts trigger.
         </p>
         <div className="flex flex-wrap items-center gap-3">
@@ -459,20 +459,20 @@ function FeeBreakdown({ e }: { e: EscrowSnapshot }) {
 
   return (
     <Secondary title="Protocol Fee & Recipient Details">
-      <div className="space-y-2 text-sm text-slate-600">
+      <div className="space-y-2 text-sm text-muted">
         <div className="flex justify-between">
           <span>Fee Rate:</span>
-          <span className="font-medium text-slate-900">{e.feeBps} BPS ({feePercent}%)</span>
+          <span className="font-medium text-ink">{e.feeBps} BPS ({feePercent}%)</span>
         </div>
         <div className="flex justify-between gap-2">
           <span>Fee Recipient:</span>
-          <span className="font-mono text-xs text-slate-900 truncate max-w-[200px]" title={e.feeRecipient}>
+          <span className="font-mono text-xs text-ink truncate max-w-[200px]" title={e.feeRecipient}>
             {e.feeRecipient}
           </span>
         </div>
         <div className="flex justify-between">
           <span>Unswept Fee:</span>
-          <span className="font-medium text-slate-900">
+          <span className="font-medium text-ink">
             {formatAmount(e.unsweptFee, t.decimals, t.symbol)}
           </span>
         </div>

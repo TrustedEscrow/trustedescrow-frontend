@@ -31,7 +31,7 @@ export default function EscrowLookupPage() {
 
       <Card title="Escrow contract address">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             An escrow page reads the contract itself, not this site’s cache. It works while the backend is down, and it works for escrows this backend has never
             seen.
           </p>
@@ -60,7 +60,7 @@ export default function EscrowLookupPage() {
         </form>
       </Card>
 
-      <aside className="space-y-2 rounded-xl border border-line bg-white p-4 text-xs text-slate-600">
+      <aside className="space-y-2 rounded-xl border border-line bg-surface p-4 text-xs text-muted">
         <p className="font-semibold text-ink">What still holds when this site is down</p>
         <ul className="list-disc space-y-1 pl-4">
           <li>The seller is paid only with their proof plus the buyer’s code or confirmation, or an arbitrator’s ruling.</li>
